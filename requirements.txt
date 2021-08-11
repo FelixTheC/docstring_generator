@@ -1,0 +1,4 @@
+click==8.0.1
+black
+isort
+strongtyping==2.1.6
