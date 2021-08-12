@@ -4,7 +4,7 @@
 @created: 01.08.21
 @author: felix
 """
-from pprint import pprint
+import pickle
 from typing import Any
 from typing import List
 
@@ -20,6 +20,7 @@ from strongtyping.type_namedtuple import typed_namedtuple
 
 TAB = " " * 4
 METHOD_TAB = TAB * 2
+CACHE_FOLDER = Path(__file__).parent.parent / Path('.docstring_generator')
 
 # file, line_no, the_docs, line_no + origin_doc_lines
 DocstringLines = typed_namedtuple(
@@ -101,29 +102,46 @@ def create_docstring_classes(file: Path, data: Any) -> List[DocstringLines]:
 
 
 def read_file(file: Path):
-    file_data = {}
-    import_name = str(file).replace("/", ".").removesuffix(".py")
-    exec(f"from {import_name} import *", globals(), file_data)
-    updated_lines = []
-    for key, data in file_data.items():
-        if inspect.isfunction(data):
-            updated_lines.append(create_docstring_function(file, data))
+    from src.docstring_utils import FileWatched
+    cached_file = CACHE_FOLDER / Path(f'{file.name}.pkl')
+    if cached_file.exists():
+        with cached_file.open('rb') as pickle_file:
+            file_watched = pickle.load(pickle_file)
+    else:
+        file_watched = FileWatched(file)
+    file_watched.create_docstrings()
+
+    with cached_file.open('wb') as pickle_file:
+        pickle.dump(file_watched, pickle_file)
+
+    updated_lines = [DocstringLines(**line)
+                     for line in file_watched.updated_lines if line]
+    for key, data in file_watched():
+        # if inspect.isfunction(data):
+        #     result = create_docstring_function(file, data)
+        #     updated_lines.append(result)
         if inspect.isclass(data):
             updated_lines.extend(create_docstring_classes(file, data))
     updated_lines.sort(key=lambda x: x.start_line, reverse=True)
-    for new_docstring_lines in updated_lines:
-        if new_docstring_lines:
-            write_the_docs(
-                new_docstring_lines.file,
-                new_docstring_lines.start_line,
-                new_docstring_lines.docs,
-                new_docstring_lines.end_line,
-            )
+    # for new_docstring_lines in updated_lines:
+    #     if new_docstring_lines:
+    #         write_the_docs(
+    #             new_docstring_lines.file,
+    #             new_docstring_lines.start_line,
+    #             new_docstring_lines.docs,
+    #             new_docstring_lines.end_line,
+    #         )
+
+
+def create_cache_folder():
+    if not CACHE_FOLDER.exists():
+        CACHE_FOLDER.mkdir()
 
 
 @click.command()
 @click.argument("path")
 def main(path: str):
+    create_cache_folder()
     path_ = Path(path)
     if path_.name.endswith(".py"):
         read_file(path_)
