@@ -4,7 +4,8 @@
 @created: 01.08.21
 @author: felix
 """
-import pickle
+import json
+from json import JSONDecodeError
 from typing import Any
 from typing import List
 
@@ -101,18 +102,34 @@ def create_docstring_classes(file: Path, data: Any) -> List[DocstringLines]:
     return class_docs
 
 
+def json_exists(file: Path):
+    return (CACHE_FOLDER / Path(f'{file.name}.json')).exists()
+
+
+def save_as_json(file: Path, file_watcher):
+    with (CACHE_FOLDER / Path(f'{file.name}.json')).open('w') as file:
+        json.dump(file_watcher.to_json(), file)
+
+
+def load_json(file: Path) -> dict:
+    with (CACHE_FOLDER / Path(f'{file.name}.json')).open('r') as file:
+        return json.loads(file.read())
+
+
 def read_file(file: Path):
     from src.docstring_utils import FileWatched
-    cached_file = CACHE_FOLDER / Path(f'{file.name}.pkl')
-    if cached_file.exists():
-        with cached_file.open('rb') as pickle_file:
-            file_watched = pickle.load(pickle_file)
-    else:
-        file_watched = FileWatched(file)
-    file_watched.create_docstrings()
 
-    with cached_file.open('wb') as pickle_file:
-        pickle.dump(file_watched, pickle_file)
+    file_watched = FileWatched(file)
+    if json_exists(file):
+        try:
+            file_watched.load_json(load_json(file))
+        except JSONDecodeError:
+            pass
+        file_watched.create_docstrings()
+    else:
+        file_watched.create_docstrings()
+
+    save_as_json(file, file_watched)
 
     updated_lines = [DocstringLines(**line)
                      for line in file_watched.updated_lines if line]
@@ -123,14 +140,14 @@ def read_file(file: Path):
         if inspect.isclass(data):
             updated_lines.extend(create_docstring_classes(file, data))
     updated_lines.sort(key=lambda x: x.start_line, reverse=True)
-    # for new_docstring_lines in updated_lines:
-    #     if new_docstring_lines:
-    #         write_the_docs(
-    #             new_docstring_lines.file,
-    #             new_docstring_lines.start_line,
-    #             new_docstring_lines.docs,
-    #             new_docstring_lines.end_line,
-    #         )
+    for new_docstring_lines in updated_lines:
+        if new_docstring_lines:
+            write_the_docs(
+                new_docstring_lines.file,
+                new_docstring_lines.start_line,
+                new_docstring_lines.docs,
+                new_docstring_lines.end_line,
+            )
 
 
 def create_cache_folder():
@@ -143,6 +160,8 @@ def create_cache_folder():
 def main(path: str):
     create_cache_folder()
     path_ = Path(path)
+    if not path_.exists():
+        return
     if path_.name.endswith(".py"):
         read_file(path_)
     for file in path_.glob("*.py"):

@@ -8,10 +8,20 @@ from typing import Callable
 from src.gen_docs import create_docstring_function, DocstringLines
 
 
+DATE_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
+
+
+def tmp(file: Path, import_str='*') -> dict:
+    file_objects = {}
+    import_name = str(file).replace("/", ".").removesuffix(".py")
+    exec(f"from {import_name} import {import_str}", globals(), file_objects)
+    return file_objects
+
+
 class DocstringHistory:
 
     def __init__(self, origin_docstring: str, func_params: dict):
-        self.func_params = dict(func_params)
+        self.func_params = {key: str(val) for key, val in func_params.items()}
         self.origin_docstring = origin_docstring
         self.docstring_over_time = {datetime.utcnow(): self.origin_docstring}
         self.params_over_time = {datetime.utcnow(): self.func_params}
@@ -20,7 +30,8 @@ class DocstringHistory:
         if other[0] == 'doc':
             self.docstring_over_time[datetime.utcnow()] = other[1]
         elif other[0] == 'params':
-            self.params_over_time[datetime.utcnow()] = other[1]
+            self.params_over_time[datetime.utcnow()] = {key: str(val)
+                                                        for key, val in other[1].items()}
 
     def add(self, other: tuple):
         self + other
@@ -39,6 +50,20 @@ class DocstringHistory:
         Get last known function params
         """
         return self.params_over_time[sorted(self.params_over_time.keys(), reverse=True)[0]]
+
+    def to_json(self):
+        return {
+            "origin_docstring": self.origin_docstring,
+            "docstring_over_time": {str(key): val for key, val in self.docstring_over_time.items()},
+            "params_over_time": {str(key): val for key, val in self.params_over_time.items()},
+            "func_params": self.func_params,
+        }
+
+    @classmethod
+    def load_json(cls, json_data: dict) -> "DocstringHistory":
+        new_cls = cls(json_data["origin_docstring"], json_data["func_params"])
+        new_cls.docstring_over_time = {datetime.strptime(key, DATE_FORMAT): val
+                                       for key, val in json_data["docstring_over_time"]}
 
 
 class DocstringCreator:
@@ -88,6 +113,17 @@ class DocstringCreator:
                     self.history.add(('doc', None))
                     self.__docstring_lines = None
 
+    def to_json(self):
+        return {str(self.callable_): self.history.to_json()}
+
+    @classmethod
+    def load_json(cls, file: Path, json_data: dict) -> "DocstringCreator":
+        key = list(json_data.keys())[0]
+        import_name = key.split(' ')[1]
+        new_cls = cls(file, tmp(file, import_name)[import_name])
+        new_cls.history = DocstringHistory.load_json(json_data[key])
+        return new_cls
+
 
 class FileWatched:
 
@@ -115,3 +151,13 @@ class FileWatched:
 
     def __call__(self, *args, **kwargs):
         return self.file_objects.items()
+
+    def to_json(self):
+        return {self.file.name: [val.to_json() for val in self.func_doc.values()]}
+
+    def load_json(self, json_data: dict):
+        if self.file.name not in json_data:
+            return
+        for dc in json_data[self.file.name]:
+            for key, val in dc.items():
+                self.func_doc[key] = DocstringCreator.load_json(self.file, dc)
