@@ -5,8 +5,6 @@ from datetime import datetime
 from pathlib import Path
 from typing import Callable
 
-from src.gen_docs import create_docstring_function, DocstringLines
-
 
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
 
@@ -82,7 +80,7 @@ class DocstringCreator:
         self.history = DocstringHistory(self.callable_.__doc__,
                                         inspect.signature(self.callable_).parameters)
 
-    def set_docstring_lines(self, doc_lines: DocstringLines):
+    def set_docstring_lines(self, doc_lines):
         self.__docstring_lines = {
             'file': doc_lines.file,
             'docs': doc_lines.docs,
@@ -95,6 +93,8 @@ class DocstringCreator:
         return self.__docstring_lines
 
     def generate_docstring(self):
+        from gen_docs import create_docstring_function, DocstringLines
+
         function_params = inspect.signature(self.callable_).parameters
         if self.is_def:
             result: DocstringLines = create_docstring_function(self.file, self.callable_)
@@ -136,6 +136,8 @@ class FileWatched:
 
     def read_in_callable_objects(self):
         import_name = str(self.file).replace("/", ".").removesuffix(".py")
+        if import_name.startswith('.'):
+            import_name = import_name[1:]
         exec(f"from {import_name} import *", globals(), self.file_objects)
 
     def create_docstrings(self):

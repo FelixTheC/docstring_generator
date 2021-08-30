@@ -4,14 +4,15 @@
 @created: 01.08.21
 @author: felix
 """
+import ast
+import inspect
 import json
-from json import JSONDecodeError
+from pathlib import Path
+from pprint import pprint
 from typing import Any
 from typing import List
 
 import click
-from pathlib import Path
-import inspect
 from strongtyping.docs_from_typing import (
     rest_docs_from_typing,
     numpy_docs_from_typing,
@@ -30,6 +31,7 @@ DocstringLines = typed_namedtuple(
 
 
 def write_the_docs(file: Path, start_line: int, doc_string: str, end_line: int) -> None:
+    # TODO :fix: writing overwrites one line
     with file.open("r") as f:
         lines = f.readlines()
     with file.open("w+") as f:
@@ -42,17 +44,12 @@ def write_the_docs(file: Path, start_line: int, doc_string: str, end_line: int) 
             f.write(line)
 
 
-def create_docstring_function(file: Path, data: Any, tab: TAB = TAB) -> DocstringLines:
-    func, line_no = inspect.getsourcelines(data)
-    for idx, line in enumerate(func):
-        if line.endswith(":\n"):
-            line_no += idx + 1
-            break
+def create_docstring_function(file: Path, data: Any, line_no: int, tab: TAB = TAB) -> DocstringLines:
     try:
         docs = inspect.getdoc(data).split("\n")
     except AttributeError:
         docs = []
-    origin_doc_lines = len(docs) + 2
+    origin_doc_lines = len(docs) + 2 if docs else 0
     the_docs = numpy_docs_from_typing()(data).__doc__.split("\n")
     if the_docs[0] == "":
         the_docs = the_docs[1:]
@@ -61,16 +58,11 @@ def create_docstring_function(file: Path, data: Any, tab: TAB = TAB) -> Docstrin
     return DocstringLines(file, the_docs, line_no, line_no + origin_doc_lines)
 
 
-def create_docstring_classes(file: Path, data: Any) -> List[DocstringLines]:
-    func, line_no = inspect.getsourcelines(data)
+def create_docstring_classes(file: Path, data: Any, line_no: int) -> List[DocstringLines]:
     docs = inspect.getdoc(data).split("\n")
-    origin_doc_lines = len(docs) + 2
+    origin_doc_lines = len(docs) + 2 if docs else 0
 
     class_docs = []
-    for idx, line in enumerate(func):
-        if line.endswith(":\n"):
-            line_no += idx + 1
-            break
     the_docs = class_docs_from_typing(doc_type="numpy")(data).__doc__.split("\n")
     if the_docs[0] == "":
         the_docs = the_docs[1:]
@@ -116,38 +108,55 @@ def load_json(file: Path) -> dict:
         return json.loads(file.read())
 
 
+def find_lineno(ast_body: list, func_name: str):
+    start_lineno = end_lineno = 0
+    for expr in ast_body:
+        if isinstance(expr, ast.FunctionDef) and expr.name == func_name:
+            start_lineno, end_lineno = expr.body[0].lineno, expr.end_lineno
+            break
+        if isinstance(expr, ast.ClassDef) and expr.name == func_name:
+            start_lineno, end_lineno = expr.lineno, expr.end_lineno
+            break
+    return start_lineno, end_lineno
+
+
+def find_imports(ast_body: list):
+    return [ast.unparse(expr) for expr in ast_body
+            if isinstance(expr, (ast.Import, ast.ImportFrom))]
+
+
 def read_file(file: Path):
-    from src.docstring_utils import FileWatched
+    import ast
+    updated_lines = []
+    file_data = {}
+    imports = {}
 
-    file_watched = FileWatched(file)
-    if json_exists(file):
-        try:
-            file_watched.load_json(load_json(file))
-        except JSONDecodeError:
-            pass
-        file_watched.create_docstrings()
-    else:
-        file_watched.create_docstrings()
+    parsed_file = ast.parse(file.read_text(), str(file))
 
-    save_as_json(file, file_watched)
+    exec('\n'.join(find_imports(parsed_file.body)), globals(), imports)
+    exec(ast.unparse(parsed_file), {**globals(), **imports}, file_data)
 
-    updated_lines = [DocstringLines(**line)
-                     for line in file_watched.updated_lines if line]
-    for key, data in file_watched():
-        # if inspect.isfunction(data):
-        #     result = create_docstring_function(file, data)
-        #     updated_lines.append(result)
+    file_data = {key: val
+                 for key, val in file_data.items()
+                 if inspect.isfunction(val) or inspect.isclass(val)}
+
+    for key, data in file_data.items():
+        if inspect.isfunction(data):
+            if str(file_data[data.__name__].__module__) == '__main__':
+                line_no, _ = find_lineno(parsed_file.body, data.__name__)
+                updated_lines.append(create_docstring_function(file, data, line_no))
         if inspect.isclass(data):
-            updated_lines.extend(create_docstring_classes(file, data))
-    updated_lines.sort(key=lambda x: x.start_line, reverse=True)
-    for new_docstring_lines in updated_lines:
-        if new_docstring_lines:
-            write_the_docs(
-                new_docstring_lines.file,
-                new_docstring_lines.start_line,
-                new_docstring_lines.docs,
-                new_docstring_lines.end_line,
-            )
+            pass
+            # updated_lines.extend(create_docstring_classes(file, data))
+    # updated_lines.sort(key=lambda x: x.start_line, reverse=True)
+    # for new_docstring_lines in updated_lines:
+    #     if new_docstring_lines:
+    #         write_the_docs(
+    #             new_docstring_lines.file,
+    #             new_docstring_lines.start_line,
+    #             new_docstring_lines.docs,
+    #             new_docstring_lines.end_line,
+    #         )
 
 
 def create_cache_folder():
@@ -158,15 +167,18 @@ def create_cache_folder():
 @click.command()
 @click.argument("path")
 def main(path: str):
-    create_cache_folder()
+    if path == '.':
+        for file in Path.cwd().glob("*/*.py"):
+            if file.name != "gen_docs.py":
+                read_file(file)
     path_ = Path(path)
     if not path_.exists():
         return
     if path_.name.endswith(".py"):
         read_file(path_)
-    for file in path_.glob("*.py"):
-        if file.name != "gen_docs.py":
-            print(file)
+    # for file in path_.glob("*/*.py"):
+    #     if file.name != "gen_docs.py":
+    #         read_file(file)
 
 
 if __name__ == "__main__":
