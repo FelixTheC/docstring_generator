@@ -10,24 +10,27 @@ README = (HERE / "README.md").read_text()
 
 setup(
     name="docstring_generator",
-    version="0.0.1",
+    version="0.1.0b",
     packages=[
         "docstring_generator",
     ],
     url="https://github.com/FelixTheC/docstring_generator",
     license="MIT",
-    author="felix",
+    author="FelixTheC",
     author_email="felixeisenmenger@gmx.net",
     description="Generate Docstrings with type-hint informations",
     long_description=README,
     long_description_content_type="text/markdown",
     classifiers=[
-        "Development Status :: 3 - Alpha",
-        "Topic :: Utilities",
+        "Development Status :: 4 - Beta",
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.9"
+        "Topic :: Utilities",
+        "Topic :: Software Development :: Documentation",
+        "Typing :: Typed",
     ],
-    python_requires=">=3.7",
+    python_requires=">=3.9",
     install_requires=["click", "strongtyping"],
     entry_points={
         'console_scripts': [
