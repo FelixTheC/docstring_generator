@@ -146,7 +146,7 @@ class Vehicle:
 - --help
 
 ### Installation
-- pip install docstring_generator
+- pip install docstring-generator
 
 ### Versioning
 - For the versions available, see the tags on this repository.
