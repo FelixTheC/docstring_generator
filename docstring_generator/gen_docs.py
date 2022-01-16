@@ -207,10 +207,6 @@ def main(path: str, ignore_classes: bool, ignore_functions: bool, style: str):
         return
     if path_.name.endswith(".py"):
         read_file(path_, config)
-    for file in path_.glob("*/*.py"):
-        if file.name != "gen_docs.py":
+    for file in path_.glob("**/*.py"):
+        if file.name not in ("gen_docs.py", "__init__.py", "__main__.py"):
             read_file(file, config)
-
-
-if __name__ == "__main__":
-    main()
