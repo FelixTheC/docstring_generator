@@ -93,7 +93,7 @@ class DocstringCreator:
         return self.__docstring_lines
 
     def generate_docstring(self):
-        from gen_docs import create_docstring_function, DocstringLines
+        from docstring_generator import create_docstring_function, DocstringLines
 
         function_params = inspect.signature(self.callable_).parameters
         if self.is_def:
