@@ -8,12 +8,11 @@ HERE = pathlib.Path(__file__).parent
 # The text of the README file
 README = (HERE / "README.md").read_text()
 
-
 setup(
     name="docstring_generator",
     version="0.0.1",
     packages=[
-        "src",
+        "docstring_generator",
     ],
     url="https://github.com/FelixTheC/docstring_generator",
     license="MIT",
@@ -30,4 +29,9 @@ setup(
     ],
     python_requires=">=3.7",
     install_requires=["click", "strongtyping"],
+    entry_points={
+        'console_scripts': [
+            'gendocs = docstring_generator.__main__:main'
+        ],
+    },
 )
