@@ -8,6 +8,8 @@ You can run this directly from the terminal
 gendocs folder/example_file.py
 ```
 
+![](images/Peek 2022-09-27 20-20.gif)
+
 ### Example
 Here a before and after example
 
