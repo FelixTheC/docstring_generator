@@ -16,7 +16,8 @@ readme = "README.md"
 packages = [{include = "docstring_generator"}]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.9,<=3.10"
+strongtyping-pyoverload = "^0.3.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^22.8.0"
