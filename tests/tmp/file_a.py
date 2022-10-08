@@ -4,9 +4,7 @@
 @created: 01.08.21
 @author: felix
 """
-from typing import Dict
-from typing import Literal
-from typing import Union
+from typing import Dict, Literal, Union
 
 
 def foo(

@@ -1,15 +1,12 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 import inspect
 from datetime import datetime
 from pathlib import Path
 from typing import Callable
 
-
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
 
 
-def tmp(file: Path, import_str='*') -> dict:
+def tmp(file: Path, import_str="*") -> dict:
     file_objects = {}
     import_name = str(file).replace("/", ".").removesuffix(".py")
     exec(f"from {import_name} import {import_str}", globals(), file_objects)
@@ -17,7 +14,6 @@ def tmp(file: Path, import_str='*') -> dict:
 
 
 class DocstringHistory:
-
     def __init__(self, origin_docstring: str, func_params: dict):
         self.func_params = {key: str(val) for key, val in func_params.items()}
         self.origin_docstring = origin_docstring
@@ -25,11 +21,12 @@ class DocstringHistory:
         self.params_over_time = {datetime.utcnow(): self.func_params}
 
     def __add__(self, other: tuple):
-        if other[0] == 'doc':
+        if other[0] == "doc":
             self.docstring_over_time[datetime.utcnow()] = other[1]
-        elif other[0] == 'params':
-            self.params_over_time[datetime.utcnow()] = {key: str(val)
-                                                        for key, val in other[1].items()}
+        elif other[0] == "params":
+            self.params_over_time[datetime.utcnow()] = {
+                key: str(val) for key, val in other[1].items()
+            }
 
     def add(self, other: tuple):
         self + other
@@ -60,12 +57,13 @@ class DocstringHistory:
     @classmethod
     def load_json(cls, json_data: dict) -> "DocstringHistory":
         new_cls = cls(json_data["origin_docstring"], json_data["func_params"])
-        new_cls.docstring_over_time = {datetime.strptime(key, DATE_FORMAT): val
-                                       for key, val in json_data["docstring_over_time"]}
+        new_cls.docstring_over_time = {
+            datetime.strptime(key, DATE_FORMAT): val
+            for key, val in json_data["docstring_over_time"]
+        }
 
 
 class DocstringCreator:
-
     def __init__(self, file: Path, function: Callable, is_def: bool = True):
         self.file = file
         self.callable_ = function
@@ -77,15 +75,16 @@ class DocstringCreator:
         self.generate_docstring()
 
     def extract_origin_docstring(self):
-        self.history = DocstringHistory(self.callable_.__doc__,
-                                        inspect.signature(self.callable_).parameters)
+        self.history = DocstringHistory(
+            self.callable_.__doc__, inspect.signature(self.callable_).parameters
+        )
 
     def set_docstring_lines(self, doc_lines):
         self.__docstring_lines = {
-            'file': doc_lines.file,
-            'docs': doc_lines.docs,
-            'start_line': doc_lines.start_line,
-            'end_line': doc_lines.end_line,
+            "file": doc_lines.file,
+            "docs": doc_lines.docs,
+            "start_line": doc_lines.start_line,
+            "end_line": doc_lines.end_line,
         }
 
     @property
@@ -93,24 +92,25 @@ class DocstringCreator:
         return self.__docstring_lines
 
     def generate_docstring(self):
-        from docstring_generator import create_docstring_function, DocstringLines
+        from docstring_generator import DocstringLines, create_docstring_function
 
         function_params = inspect.signature(self.callable_).parameters
         if self.is_def:
             result: DocstringLines = create_docstring_function(self.file, self.callable_)
             if self.history.length == 1:
-                self.history.add(('doc', result.docs))
+                self.history.add(("doc", result.docs))
                 self.set_docstring_lines(result)
             elif self.history.length == 1 and self.history.last != result.docs:
-                self.history.add(('doc', result.docs))
+                self.history.add(("doc", result.docs))
                 self.set_docstring_lines(result)
             elif self.history.length > 2:
-                if (self.history.last != result.docs
-                        and len(self.history.function_params) != len(function_params)):
-                    self.history.add(('doc', result.docs))
+                if self.history.last != result.docs and len(self.history.function_params) != len(
+                    function_params
+                ):
+                    self.history.add(("doc", result.docs))
                     self.set_docstring_lines(result)
                 else:
-                    self.history.add(('doc', None))
+                    self.history.add(("doc", None))
                     self.__docstring_lines = None
 
     def to_json(self):
@@ -119,14 +119,13 @@ class DocstringCreator:
     @classmethod
     def load_json(cls, file: Path, json_data: dict) -> "DocstringCreator":
         key = list(json_data.keys())[0]
-        import_name = key.split(' ')[1]
+        import_name = key.split(" ")[1]
         new_cls = cls(file, tmp(file, import_name)[import_name])
         new_cls.history = DocstringHistory.load_json(json_data[key])
         return new_cls
 
 
 class FileWatched:
-
     def __init__(self, file: Path):
         self.file = file
         self.file_objects = {}
@@ -136,7 +135,7 @@ class FileWatched:
 
     def read_in_callable_objects(self):
         import_name = str(self.file).replace("/", ".").removesuffix(".py")
-        if import_name.startswith('.'):
+        if import_name.startswith("."):
             import_name = import_name[1:]
         exec(f"from {import_name} import *", globals(), self.file_objects)
 
