@@ -5,13 +5,10 @@ from pathlib import Path
 from typing import Any, List, Optional
 
 import click
-from strongtyping.docs_from_typing import (
-    class_docs_from_typing,
-    numpy_docs_from_typing,
-    rest_docs_from_typing,
-)
+from strongtyping.docs_from_typing import numpy_docs_from_typing, rest_docs_from_typing
 from strongtyping.type_namedtuple import typed_namedtuple
 
+from docstring_generator.docstring_utils import class_docs_from_typing
 from docstring_generator.function_cache import FunctionCache
 
 TAB = " " * 4
@@ -58,6 +55,8 @@ def find_imports(ast_body: list) -> list:
 
 
 def write_the_docs(file: Path, start_line: int, doc_string: str, end_line: int) -> None:
+    if start_line == end_line:
+        return
     with file.open("r") as f:
         lines = f.readlines()
 
@@ -130,67 +129,59 @@ def create_docstring_function(
 def create_docstring_classes(
     config: Config, file: Path, data: Any, line_no: int
 ) -> List[DocstringLines]:
-    if data_docs := inspect.getdoc(data):
-        docs = inspect.getdoc(data_docs).split("\n")
-    else:
-        docs = ""
-
-    origin_doc_lines = len(docs) + 2 if docs else 0
-
     class_docs = []
-    tmp_docs = []
-    reached_parameter = False
 
-    the_docs = class_docs_from_typing(doc_type=config.style)(data).__doc__.split("\n")
-
-    if the_docs[0] == "":
-        the_docs = the_docs[1:]
-    for doc_line in ['"""'] + the_docs + ['"""']:
-        if doc_line == "Parameters":
-            reached_parameter = True
-        if not reached_parameter and doc_line.startswith(TAB):
-            tmp_docs.append(doc_line)
-        else:
-            tmp_docs.append(f"{TAB}{doc_line}")
-    the_docs = "\n".join(tmp_docs)
-    new_docs = DocstringLines(
-        file, the_docs, line_no + 1, line_no + origin_doc_lines + len(the_docs)
+    func_cache = FunctionCache.from_json_file(str(file.absolute()), data.__name__) or FunctionCache(
+        str(file.absolute()),
+        data.__name__,
+        dict(inspect.signature(data).parameters),
+        data.__doc__ or "",
     )
-    class_docs.append(new_docs)
-    for name, method in inspect.getmembers(data):
-        if inspect.isfunction(method):
-            if method.__annotations__:
-                try:
-                    _, method_line_no = inspect.getsourcelines(method)
-                except OSError:
-                    parsed_file = ast.parse(file.read_text(), str(file), type_comments=True)
-                    method_line_no = find_lineno(parse_ast_elements(parsed_file), name)[0]
-                    method_docs = [
-                        f"{METHOD_TAB}{doc_line}"
-                        for doc_line in ['"""'] + method.__doc__.split("\n") + ['"""\n']
-                    ]
-                    class_docs.append(
-                        DocstringLines(
-                            file,
-                            "\n".join(method_docs),
-                            method_line_no,
-                            method_line_no + len(method_docs),
-                        )
-                    )
-                else:
-                    method_line_no += 1
-                    method_docs = [
-                        f"{METHOD_TAB}{doc_line}"
-                        for doc_line in ['"""'] + method.__doc__.split("\n") + ['"""\n']
-                    ]
-                    class_docs.append(
-                        DocstringLines(
-                            file,
-                            "\n".join(method_docs),
-                            method_line_no,
-                            method_line_no + len(method_docs),
-                        )
-                    )
+
+    the_docs = class_docs_from_typing(data, doc_type=config.style)
+
+    if not func_cache.current_docstring:
+        func_cache.current_docstring = the_docs
+
+    func_cache.write_json()
+    if data.__doc__ != the_docs:
+        class_docs.append(
+            DocstringLines(file, the_docs, line_no + 1, line_no + len(the_docs.split("\n")))
+        )
+    # for name, method in inspect.getmembers(data):
+    #     if inspect.isfunction(method):
+    #         if method.__annotations__:
+    #             try:
+    #                 _, method_line_no = inspect.getsourcelines(method)
+    #             except OSError:
+    #                 parsed_file = ast.parse(file.read_text(), str(file), type_comments=True)
+    #                 method_line_no = find_lineno(parse_ast_elements(parsed_file), name)[0]
+    #                 method_docs = [
+    #                     f"{METHOD_TAB}{doc_line}"
+    #                     for doc_line in ['"""'] + method.__doc__.split("\n") + ['"""\n']
+    #                 ]
+    #                 class_docs.append(
+    #                     DocstringLines(
+    #                         file,
+    #                         "\n".join(method_docs),
+    #                         method_line_no,
+    #                         method_line_no + len(method_docs),
+    #                     )
+    #                 )
+    #             else:
+    #                 method_line_no += 1
+    #                 method_docs = [
+    #                     f"{METHOD_TAB}{doc_line}"
+    #                     for doc_line in ['"""'] + method.__doc__.split("\n") + ['"""\n']
+    #                 ]
+    #                 class_docs.append(
+    #                     DocstringLines(
+    #                         file,
+    #                         "\n".join(method_docs),
+    #                         method_line_no,
+    #                         method_line_no + len(method_docs),
+    #                     )
+    #                 )
     return class_docs
 
 
