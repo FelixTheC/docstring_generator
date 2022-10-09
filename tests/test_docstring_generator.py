@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-import pathlib
 import time
 
 from docstring_generator.config import BASE_ROOT, CACHE_FOLDER
@@ -78,3 +75,18 @@ def test_write_updated_lines(function_only_file, config):
 
     assert len(origin_txt) < len(updated_txt)
     assert origin_txt != updated_txt
+
+
+def test_cache_file_created_class_file_only(class_only_file, config):
+    gen = DocstringGenerator(class_only_file, config)
+
+    gen.get_file_objects()
+    gen.create_docstrings_classes()
+
+    prefix = str(BASE_ROOT).replace("/", "_")[1:].lower()
+
+    expected_cache_files = [
+        (CACHE_FOLDER / f"{prefix}_tests_files_class_only_Dummy.json"),
+    ]
+    for file in expected_cache_files:
+        assert file.exists()

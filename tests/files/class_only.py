@@ -3,6 +3,13 @@
 
 
 class Dummy:
+    """
+    Some useful information about this class
+    """
+
+    attr_a: str = "Hello"
+    attr_b: int
+
     def __init__(self):
         pass
 
