@@ -48,9 +48,8 @@ class DocstringGenerator:
     def create_docstrings_functions(self):
         for key, val in self.file_functions.items():
             line_no, _ = find_lineno(self.get_parsed_file.body, val.__name__)
-            self.updated_lines.append(
-                create_docstring_function(self.config, self.file, val, line_no)
-            )
+            if updated_line := create_docstring_function(self.config, self.file, val, line_no):
+                self.updated_lines.append(updated_line)
 
     def create_docstrings_classes(self):
         for key, val in self.file_classes.items():
@@ -59,13 +58,22 @@ class DocstringGenerator:
                 create_docstring_classes(self.config, self.file, val, line_no)
             )
 
-    def write_docstring(self):
+    def sort_updated_lines(self):
         self.updated_lines.sort(key=lambda x: x.start_line, reverse=True)
+
+    def write_docstring(self):
+        self.sort_updated_lines()
+        with self.file.open("r") as f:
+            updated_lines = f.readlines()
+
         for new_docstring_lines in self.updated_lines:
             if new_docstring_lines:
-                write_the_docs(
-                    new_docstring_lines.file,
+                updated_lines = write_the_docs(
+                    updated_lines,
                     new_docstring_lines.start_line,
                     new_docstring_lines.docs,
                     new_docstring_lines.end_line,
                 )
+
+        with self.file.open("w+") as fp:
+            fp.writelines(updated_lines)

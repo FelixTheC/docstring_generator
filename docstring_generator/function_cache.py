@@ -125,7 +125,7 @@ class FunctionCache:
 
     @classmethod
     def from_json_file(cls, file_name, object_name) -> Optional["FunctionCache"]:
-        filename = file_name.replace("/", "_")[1:].lower()
+        filename = file_name.replace("/", "_")[1:].lower().replace(".py", "")
         cache_file = CACHE_FOLDER / f"{filename}_{object_name}.json"
 
         if not cache_file.exists():
