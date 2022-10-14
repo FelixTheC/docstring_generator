@@ -10,7 +10,7 @@ README = (HERE / "README.md").read_text()
 
 setup(
     name="docstring_generator",
-    version="0.1.1b",
+    version="0.2.0",
     packages=[
         "docstring_generator",
     ],
