@@ -1,29 +1,59 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-@created: 16.01.22
-@author: felix
-"""
 import ast
+import pathlib
 import uuid
 
 from pytest import fixture
-import pathlib
+from strongtyping.type_namedtuple import typed_namedtuple
 
-from docstring_generator.gen_docs import Config
-from docstring_generator.gen_docs import find_imports
-from docstring_generator.gen_docs import read_file
+from docstring_generator.gen_docs import Config, find_imports, read_file
 
-TEMP_DIR = pathlib.Path(__file__).parent / pathlib.Path('tmp')
-FILE_NAME = str(uuid.uuid4()).replace('-', '')[:10] + '_example.py'
+TEMP_DIR = pathlib.Path(__file__).parent / pathlib.Path("tmp")
+FILE_NAME = str(uuid.uuid4()).replace("-", "")[:10] + "_example.py"
 if not TEMP_DIR.exists():
     TEMP_DIR.mkdir(exist_ok=True)
+
+
+Config = typed_namedtuple("Config", ["ignore_classes:bool", "ignore_function:bool", "style:str"])
+
+
+@fixture(scope="package")
+def function_only_file():
+    file = pathlib.Path(__file__).parent / pathlib.Path("files") / pathlib.Path("functions_only.py")
+    with file.open("r") as fp:
+        origin_txt = fp.readlines()
+
+    yield file
+
+    # with file.open("w") as fp:
+    #     fp.writelines(origin_txt)
+
+
+@fixture(scope="package")
+def mixed_file():
+    file = pathlib.Path(__file__).parent / pathlib.Path("files") / pathlib.Path("mixed.py")
+    with file.open("r") as fp:
+        origin_txt = fp.readlines()
+
+    yield file
+
+    # with file.open("w") as fp:
+    #     fp.writelines(origin_txt)
+
+
+@fixture(scope="package")
+def class_only_file():
+    yield pathlib.Path(__file__).parent / pathlib.Path("files") / pathlib.Path("class_only.py")
+
+
+@fixture(scope="package")
+def config():
+    yield Config(True, False, "numpy")
 
 
 @fixture
 def testfile() -> pathlib.Path:
     tempfile = TEMP_DIR / pathlib.Path(FILE_NAME)
-    tempfile.write_text(pathlib.Path("file_a.py").read_text())
+    tempfile.write_text(pathlib.Path("tmp/file_a.py").read_text())
     yield tempfile
     tempfile.unlink()
 

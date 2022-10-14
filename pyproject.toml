@@ -6,3 +6,24 @@ target-version = ['py38']
 combine_as_imports = true
 line_length = 100
 profile = "black"
+
+[tool.poetry]
+name = "docstring-generator"
+version = "0.1.0"
+description = ""
+authors = ["FelixTheC <felixeisenmenger@gmx.net>"]
+readme = "README.md"
+packages = [{include = "docstring_generator"}]
+
+[tool.poetry.dependencies]
+python = "^3.9,<=3.10"
+strongtyping-pyoverload = "^0.3.0"
+
+[tool.poetry.group.dev.dependencies]
+black = "^22.8.0"
+isort = "^5.10.1"
+pytest = "^7.1.3"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
