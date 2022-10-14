@@ -10,7 +10,7 @@ README = (HERE / "README.md").read_text()
 
 setup(
     name="docstring_generator",
-    version="0.0.1",
+    version="0.1.0",
     packages=[
         "docstring_generator",
     ],
@@ -30,8 +30,6 @@ setup(
     python_requires=">=3.7",
     install_requires=["click", "strongtyping"],
     entry_points={
-        'console_scripts': [
-            'gendocs = docstring_generator.__main__:main'
-        ],
+        "console_scripts": ["gendocs = docstring_generator.__main__:main"],
     },
 )
