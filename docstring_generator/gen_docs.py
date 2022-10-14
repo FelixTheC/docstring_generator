@@ -218,8 +218,10 @@ def read_file(file: Path, config: Config) -> None:
     gen = DocstringGenerator(file, config)
 
     gen.get_file_objects()
-    gen.create_docstrings_functions()
-    gen.create_docstrings_classes()
+    if not config.ignore_function:
+        gen.create_docstrings_functions()
+    if not config.ignore_classes:
+        gen.create_docstrings_classes()
     gen.write_docstring()
 
 
