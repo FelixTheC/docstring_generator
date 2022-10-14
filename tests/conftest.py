@@ -24,8 +24,20 @@ def function_only_file():
 
     yield file
 
-    with file.open("w") as fp:
-        fp.writelines(origin_txt)
+    # with file.open("w") as fp:
+    #     fp.writelines(origin_txt)
+
+
+@fixture(scope="package")
+def mixed_file():
+    file = pathlib.Path(__file__).parent / pathlib.Path("files") / pathlib.Path("mixed.py")
+    with file.open("r") as fp:
+        origin_txt = fp.readlines()
+
+    yield file
+
+    # with file.open("w") as fp:
+    #     fp.writelines(origin_txt)
 
 
 @fixture(scope="package")
