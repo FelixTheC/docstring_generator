@@ -33,8 +33,6 @@ setup(
     python_requires=">=3.9",
     install_requires=["click", "strongtyping"],
     entry_points={
-        'console_scripts': [
-            'gendocs = docstring_generator.__main__:main'
-        ],
+        "console_scripts": ["gendocs = docstring_generator.__main__:main"],
     },
 )
