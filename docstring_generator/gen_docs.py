@@ -130,7 +130,11 @@ def create_docstring_function(
     except AttributeError:
         docs = ""
 
-    if not func_cache.current_docstring or func_cache.origin_docstring == data.__doc__:
+    if (
+        not func_cache.current_docstring
+        or func_cache.origin_docstring == data.__doc__
+        or not func_cache.origin_docstring
+    ):
 
         tabs = get_tabs(data, file, data.__name__)
         docs = prepare_docs(docs)
