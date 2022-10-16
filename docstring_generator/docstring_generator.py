@@ -34,6 +34,7 @@ class DocstringGenerator:
         exec("\n".join(find_imports(parsed_file.body)), globals(), imports)
         exec(ast.unparse(parsed_file), {**globals(), **imports}, file_data)
 
+        file_data = {key: val for key, val in file_data.items() if key not in imports}
         file_objects = {
             key: val
             for key, val in file_data.items()
@@ -41,7 +42,9 @@ class DocstringGenerator:
         }
 
         self.file_functions = {
-            key: val for key, val in file_objects.items() if inspect.isfunction(val)
+            key: val
+            for key, val in file_objects.items()
+            if inspect.isfunction(val) and val.__annotations__
         }
         self.file_classes = {key: val for key, val in file_objects.items() if inspect.isclass(val)}
 

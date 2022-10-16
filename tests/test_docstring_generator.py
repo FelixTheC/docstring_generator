@@ -1,4 +1,4 @@
-from docstring_generator.config import BASE_ROOT, CACHE_FOLDER
+from docstring_generator.config import CACHE_FOLDER
 from docstring_generator.docstring_generator import DocstringGenerator
 
 
@@ -45,14 +45,9 @@ def test_cache_file_created_function_file_only(function_only_file, config):
 
     gen.get_file_objects()
     gen.create_docstrings_functions()
-    prefix = str(BASE_ROOT).replace("/", "_")[1:].lower()
-
     expected_cache_files = [
-        (
-            CACHE_FOLDER
-            / f"{prefix}_tests_files_functions_only_function_without_custom_docstring.json"
-        ),
-        (CACHE_FOLDER / f"{prefix}_tests_files_functions_only_function_with_custom_docstring.json"),
+        (CACHE_FOLDER / f"tests_files_functions_only_function_without_custom_docstring.json"),
+        (CACHE_FOLDER / f"tests_files_functions_only_function_with_custom_docstring.json"),
     ]
     for file in expected_cache_files:
         assert file.exists()
@@ -80,10 +75,9 @@ def test_cache_file_created_class_file_only(class_only_file, config):
 
     gen.get_file_objects()
     gen.create_docstrings_classes()
-    prefix = str(BASE_ROOT).replace("/", "_")[1:].lower()
 
     expected_cache_files = [
-        (CACHE_FOLDER / f"{prefix}_tests_files_class_only_Dummy.json"),
+        (CACHE_FOLDER / f"tests_files_class_only_Dummy.json"),
     ]
     for file in expected_cache_files:
         assert file.exists()
@@ -97,10 +91,8 @@ def test_mixed_file(mixed_file, config):
     gen.create_docstrings_classes()
     gen.write_docstring()
 
-    prefix = str(BASE_ROOT).replace("/", "_")[1:].lower()
-
     expected_cache_files = [
-        (CACHE_FOLDER / f"{prefix}_tests_files_mixed_Dummy.json"),
+        (CACHE_FOLDER / f"tests_files_mixed_Dummy.json"),
     ]
     for file in expected_cache_files:
         assert file.exists()

@@ -4,7 +4,7 @@ import typing
 class Dummy:
     """
     Some useful information about this class
-    
+
     Attributes
     ----------
     Dummy.attr_a : of type str
@@ -22,11 +22,11 @@ class Dummy:
     def some_method(self, param_a: int):
         """
         Lorem ipsum dolor some_method
-        
+
         Parameters
         ----------
         param_a : argument of type int
-        
+
         """
 
         return self.attr_b
@@ -43,16 +43,16 @@ class Dummy:
     def some_staticmethod(val_a: int, /, *, important: str) -> typing.ForwardRef("Dummy"):
         """
         Lorem ipsum dolor some_staticmethod
-        
+
         Parameters
         ----------
-        val_a : postional only argument of type int
+        val_a : positional only argument of type int
         important : keyword only argument of type str
-        
+
         Returns
         -------
         ForwardRef('Dummy')
-        
+
         """
 
         return Dummy()

@@ -20,17 +20,19 @@ single_json_result = {
 def arguments_to_dict(arguments: Mapping[str, inspect.Parameter]) -> dict:
     res = {}
     for key, argument in arguments.items():
-        annotation_obj = get_origins(argument.annotation)[0]
+        annotation_obj, annotation_obj_str = get_origins(argument.annotation)
         if not annotation_obj:
             annotation_str = argument.annotation.__name__
         else:
-            annotation_str = annotation_obj
+            annotation_str = annotation_obj_str if annotation_obj is not None else None
 
         res[key] = {
             "name": argument.name,
             "kind": argument.kind.value,
             "annotation": annotation_str,
-            "default": argument.default.__name__,
+            "default": argument.default.__name__
+            if argument.default is inspect._empty
+            else argument.default,
         }
     return res
 

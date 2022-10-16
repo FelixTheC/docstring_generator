@@ -12,10 +12,6 @@ from strongtyping.type_namedtuple import typed_namedtuple
 from docstring_generator.docstring_utils import class_docs_from_typing
 from docstring_generator.function_cache import FunctionCache
 
-TAB = " " * 4
-METHOD_TAB = TAB * 2
-CACHE_FOLDER = Path(__file__).parent.parent / Path(".docstring_generator")
-
 # file, line_no, the_docs, line_no + origin_doc_lines
 DocstringLines = typed_namedtuple(
     "DocstringLines", ["file:PosixPath", "docs:str", "start_line:int", "end_line:int"]
@@ -115,7 +111,7 @@ def prepare_docs(docs: list[str]) -> list[str]:
 
 
 def create_docstring_function(
-    config: Config, file: Path, data: Any, line_no: int, tab: TAB = TAB
+    config: Config, file: Path, data: Any, line_no: int
 ) -> DocstringLines:
 
     func_cache = FunctionCache.from_json_file(str(file.absolute()), data.__name__) or FunctionCache(
@@ -130,7 +126,11 @@ def create_docstring_function(
     except AttributeError:
         docs = ""
 
-    if not func_cache.current_docstring or func_cache.origin_docstring == data.__doc__:
+    if (
+        not func_cache.current_docstring
+        or func_cache.origin_docstring == data.__doc__
+        or not func_cache.origin_docstring
+    ):
 
         tabs = get_tabs(data, file, data.__name__)
         docs = prepare_docs(docs)
