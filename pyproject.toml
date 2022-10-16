@@ -31,8 +31,8 @@ classifiers=[
 gendocs = "docstring_generator.__main__:main"
 
 [tool.poetry.dependencies]
-python = ">=3.9,<3.10"
-strongtyping = "3.9.2"
+python = ">=3.9,<=3.11"
+strongtyping = "^3.9.2"
 strongtyping-pyoverload = "^0.3.0"
 click = "^8.1.3"
 
