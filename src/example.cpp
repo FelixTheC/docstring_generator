@@ -1,6 +1,7 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <optional>
 #include <sstream>
 #include <vector>
 
@@ -13,37 +14,18 @@ namespace py = pybind11;
 
 const std::string FILE_PATH = "/home/felix/PycharmProjects/docstring_generator/examples/mixed_before.py";
 
-FunctionDocstring get_docstring(py::object &obj, py::module &ast_module);
-std::string parse_ast_constant(py::object &obj, py::module &ast_module);
-std::string parse_ast_name(py::object &obj, py::module &ast_module);
-std::string parse_ast_subscript(py::object &obj, py::module &ast_module);
-std::string parse_ast_attribute(py::object &obj, py::module &ast_module);
-std::string parse_ast_tuple_list(py::object &obj, py::module &ast_module);
-std::string parse_ast_binop(py::object &obj, py::module &ast_module);
-std::string parse_ast_obj(py::object &obj, py::module &ast_module);
-void write_to_file_position(std::vector<FunctionInfo> &&infos);
+FunctionDocstring get_docstring(py::object &obj, py::module &ast_module) noexcept;
+std::string parse_ast_constant(py::object &obj, py::module &ast_module) noexcept;
+std::string parse_ast_name(py::object &obj, py::module &ast_module) noexcept;
+std::string parse_ast_subscript(py::object &obj, py::module &ast_module) noexcept;
+std::string parse_ast_attribute(py::object &obj, py::module &ast_module) noexcept;
+std::string parse_ast_tuple_list(py::object &obj, py::module &ast_module) noexcept;
+std::string parse_ast_binop(py::object &obj, py::module &ast_module) noexcept;
+std::string parse_ast_obj(py::object &obj, py::module &ast_module) noexcept;
+void write_to_file_position(std::vector<FunctionInfo> &&infos, const std::string &file_path) noexcept;
 
 
-void FunctionParameter::py_print()
-{
-    std::ostringstream oss;
-    oss << name;
-    if (!default_value.empty())
-    {
-        oss << "(" << default_value << ")";
-    }
-    
-    if (!type.empty())
-    {
-        oss << "[" << type << "]";
-    }
-    
-    oss << ": " << kind << " - " << line_no;
-    
-    py::print(oss.str());
-}
-
-FunctionDocstring get_docstring(const py::object obj, py::module &ast_module)
+FunctionDocstring get_docstring(const py::object obj, py::module &ast_module) noexcept
 {
     FunctionDocstring functionDocstring {};
     
@@ -73,24 +55,24 @@ FunctionDocstring get_docstring(const py::object obj, py::module &ast_module)
     return functionDocstring;
 }
 
-std::string parse_ast_constant(py::object &obj, py::module &ast_module)
+std::string parse_ast_constant(py::object &obj, py::module &ast_module) noexcept
 {
     return py::cast<std::string>(py::repr(py::getattr(obj, "value")));
 }
 
-std::string parse_ast_name(py::object &obj, py::module &ast_module)
+std::string parse_ast_name(py::object &obj, py::module &ast_module) noexcept
 {
     return py::cast<std::string>(py::getattr(obj, "id"));
 }
 
-std::string parse_ast_subscript(py::object &obj, py::module &ast_module)
+std::string parse_ast_subscript(py::object &obj, py::module &ast_module) noexcept
 {
     auto value = py::getattr(obj, "value");
     auto slice = py::getattr(obj, "slice");
     return parse_ast_obj(value, ast_module) + "[" + parse_ast_obj(slice, ast_module) + "]";
 }
 
-std::string parse_ast_attribute(py::object &obj, py::module &ast_module)
+std::string parse_ast_attribute(py::object &obj, py::module &ast_module) noexcept
 {
     std::string result {};
     
@@ -107,7 +89,7 @@ std::string parse_ast_attribute(py::object &obj, py::module &ast_module)
     return result + "." + py::cast<std::string>(py::getattr(obj, "attr"));
 }
 
-std::string parse_ast_tuple_list(py::object &obj, py::module &ast_module)
+std::string parse_ast_tuple_list(py::object &obj, py::module &ast_module) noexcept
 {
     std::string result {};
     py::list elts = py::getattr(obj, "elts");
@@ -121,7 +103,7 @@ std::string parse_ast_tuple_list(py::object &obj, py::module &ast_module)
     return result.substr(0, result.size() - 2);
 }
 
-std::string parse_ast_binop(py::object &obj, py::module &ast_module)
+std::string parse_ast_binop(py::object &obj, py::module &ast_module) noexcept
 {
     auto left = py::getattr(obj, "left");
     auto right = py::getattr(obj, "right");
@@ -134,7 +116,7 @@ std::string parse_ast_binop(py::object &obj, py::module &ast_module)
     return result;
 }
 
-std::string parse_ast_obj(py::object &obj, py::module &ast_module)
+std::string parse_ast_obj(py::object &obj, py::module &ast_module) noexcept
 {
     if (obj.is_none())
     {
@@ -175,7 +157,7 @@ std::string parse_ast_obj(py::object &obj, py::module &ast_module)
     }
 }
 
-std::vector<FunctionParameter> generate_function_parameters(py::object &function_args, py::module &ast_module)
+std::vector<FunctionParameter> generate_function_parameters(py::object &function_args, py::module &ast_module) noexcept
 {
     std::vector<FunctionParameter> result {};
     
@@ -358,22 +340,26 @@ std::vector<FunctionParameter> generate_function_parameters(py::object &function
     return result;
 }
 
-std::string read_file()
+std::string read_file(const std::string &file_path)
 {
-    std::ifstream file(FILE_PATH, std::ios::binary);
+    std::ifstream file(file_path, std::ios::binary);
     std::string file_content {};
     
-    if (file)
+    if (file.is_open())
     {
         std::ostringstream outsstream {};
         outsstream << file.rdbuf();
         file_content = outsstream.str();
     }
+    else
+    {
+        throw py::value_error(file_path + " is not a valid path.");
+    }
     
     return file_content;
 }
 
-void get_docstring_arg_descr(FunctionInfo &functionInfo)
+void get_docstring_arg_descr(FunctionInfo &functionInfo) noexcept
 {
     if (functionInfo.docstring.docstring.empty())
     {
@@ -431,10 +417,11 @@ void get_docstring_arg_descr(FunctionInfo &functionInfo)
     }
 }
 
-bool parse_file()
+void parse_file(std::string &file_path)
 {
+    std::string file_path_cache = file_path;
     py::module ast_module = py::module::import("ast");
-    py::object generator_result = ast_module.attr("walk")(ast_module.attr("parse")(read_file()));
+    py::object generator_result = ast_module.attr("walk")(ast_module.attr("parse")(read_file(file_path)));
     py::iterator iter = py::iter(generator_result);
     
     std::vector<FunctionInfo> infos {};
@@ -474,28 +461,23 @@ bool parse_file()
                 functionReturn,
                 f_args
             };
-    
-            get_docstring_arg_descr(functionInfo);
             
+            get_docstring_arg_descr(functionInfo);
             infos.emplace_back(functionInfo);
         }
     }
     
-    write_to_file_position(std::move(infos));
-    
-    return true;
+    write_to_file_position(std::move(infos), file_path);
 }
 
-void write_to_file_position(std::vector<FunctionInfo> &&infos)
+void write_to_file_position(std::vector<FunctionInfo> &&infos, const std::string &file_path) noexcept
 {
     std::fstream file;
     GoogleDocstring googleDocstring {};
     
     auto lines = std::make_unique<std::vector<std::string>>();
     
-    file.open(
-            "/home/felix/PycharmProjects/docstring_generator/examples/mixed_before.py", std::ios::in
-    );
+    file.open(file_path, std::ios::in);
     
     for (std::string line; getline(file, line);)
     {
@@ -524,16 +506,21 @@ void write_to_file_position(std::vector<FunctionInfo> &&infos)
         lines->erase(lines->begin() + start_pos, lines->begin() + end_pos);
         
         googleDocstring.functionInfo = val;
+        googleDocstring.check_current_docstring();
         
-        lines->insert(lines->begin() + start_pos, googleDocstring.docstringArgs());
+        lines->insert(lines->begin() + start_pos, googleDocstring.docstring());
     }
     
-    file.open("/home/felix/PycharmProjects/docstring_generator/examples/mixed_before_tmp.py", std::ios::out);
+    file.open(file_path, std::ios::out);
 
     std::for_each(lines->begin(), lines->end(),
                   [&file](const auto &line)
     {
-        file << line << "\n";
+        file << line;
+        if (line[line.size() - 1] != '\n')
+        {
+            file << "\n";
+        }
     });
     
     file.close();
@@ -543,5 +530,7 @@ PYBIND11_MODULE(example, m)
 {
     m.doc() = "pybind11 example plugin"; // optional module docstring
 
-    m.def("parse_file", &parse_file, "A function that parses a file");
+    m.def("parse_file", &parse_file, "A function that parses a file",
+          py::arg("file_path"),
+          "The file_path where automatically docstrings should be added.");
 }
