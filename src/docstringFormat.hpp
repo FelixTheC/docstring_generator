@@ -84,21 +84,31 @@ struct FunctionParameter
     uint line_no;
     std::string description;
     
-    [[ nodiscard ]] std::string to_json(const uint index) noexcept
+    void update_description(const std::string &descr)
     {
         std::stringstream sstream;
-    
-        sstream << "{";
-        sstream << "\"index\":" << "\"" << index << "\",";
-        sstream << "\"name\":" << "\"" << name << "\",";
-        sstream << "\"default_value\":" << "\"" << default_value << "\",";
-        sstream << "\"type\":" << "\"" << type << "\",";
-        sstream << "\"kind\":" << "\"" << kind << "\",";
-        sstream << "\"line_no\":" << "\"" << line_no << "\",";
-        sstream << "\"description\":" << "\"" << description << "\"";
-        sstream << "}";
+        sstream << kind;
         
-        return sstream.str();
+        auto kind_name = sstream.str();
+        auto start_pos = descr.find(kind_name) + kind_name.size() + 2;
+        auto end_pos = descr.size();
+        
+        if (!default_value.empty())
+        {
+            end_pos = descr.find("default") - 2;
+        }
+        
+        auto new_description = descr.substr(start_pos, end_pos - start_pos);
+    
+        // remove trailing whitespaces
+        for (size_t idx = new_description.size() - 1; idx > 0; --idx)
+        {
+            if (!std::isspace(new_description[idx]))
+            {
+                description = new_description.substr(0, idx + 1);
+                break;
+            }
+        }
     }
 };
 
@@ -107,19 +117,6 @@ struct FunctionReturn
     std::string type;
     uint line_no;
     std::string description;
-    
-    [[ nodiscard ]] std::string to_json() noexcept
-    {
-        std::stringstream sstream;
-    
-        sstream << "\"return\":{";
-        sstream << "\"type\":" << "\"" << type << "\",";
-        sstream << "\"line_no\":" << "\"" << line_no << "\",";
-        sstream << "\"description\":" << "\"" << description << "\"";
-        sstream << "}";
-    
-        return sstream.str();
-    }
 };
 
 struct FunctionDocstring
@@ -127,22 +124,6 @@ struct FunctionDocstring
     std::string docstring;
     uint start_line;
     uint end_line;
-    
-    [[ nodiscard ]] std::string to_json() noexcept
-    {
-        std::string docstring_ = docstring;
-        std::stringstream sstream;
-        
-        replaceAll(docstring_, "\n", "");
-    
-        sstream << "\"docstring\":{";
-        sstream << "\"docstring\":" << "\"" << docstring_ << "\",";
-        sstream << "\"start_line\":" << "\"" << start_line << "\",";
-        sstream << "\"end_line\":" << "\"" << end_line << "\"";
-        sstream << "}";
-    
-        return sstream.str();
-    }
 };
 
 struct FunctionInfo
@@ -152,35 +133,6 @@ struct FunctionInfo
     FunctionDocstring docstring;
     FunctionReturn returns;
     std::vector<FunctionParameter> args {};
-    
-    [[ nodiscard ]] std::string to_json() noexcept
-    {
-        std::stringstream sstream;
-        
-        sstream << "{\"function_args\": [";
-        
-        uint counter = 0;
-        size_t args_size = args.size() - 1;
-        
-        std::for_each(args.begin(), args.end(),
-                      [&sstream, &counter, &args_size](FunctionParameter &val){
-            sstream << val.to_json(counter);
-            
-            if (counter < args_size)
-            {
-                sstream << ",";
-            }
-            
-            ++counter;
-        });
-        sstream << "],";
-        sstream << returns.to_json();
-        sstream << ",";
-        sstream << docstring.to_json();
-        sstream << "}";
-        
-        return sstream.str();
-    }
     
     int get_file_write_position()
     {
@@ -199,6 +151,31 @@ struct FunctionInfo
         }
         
         return 0;
+    }
+    
+    void update_descriptions()
+    {
+        for (int idx = 0; idx < args.size(); ++idx)
+        {
+            auto start_pos = docstring.docstring.find(args[idx].name);
+            
+            if (start_pos < std::string::npos)
+            {
+                uint end_pos = docstring.docstring.size() - 1;
+                
+                if (idx < args.size() - 1)
+                {
+                    end_pos = docstring.docstring.find(args[idx + 1].name);
+                }
+                else if (idx == args.size() - 1 && docstring.docstring.find("Returns") < std::string::npos)
+                {
+                    end_pos = docstring.docstring.find("Returns") - 1;
+                }
+                
+                std::string part_of_interest = docstring.docstring.substr(start_pos, end_pos - start_pos);
+                args[idx].update_description(part_of_interest);
+            }
+        }
     }
 };
 
@@ -287,7 +264,12 @@ struct GoogleDocstring : DocstringFormat
             sstream << current_py_tab << val.name;
             if (!val.type.empty())
             {
-                sstream << " (" << val.type << ")";
+                sstream << " (" << val.type;
+                if (!val.default_value.empty())
+                {
+                    sstream << ", optional";
+                }
+                sstream << ")";
             }
             
             if (val.description.empty())

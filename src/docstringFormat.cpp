@@ -463,6 +463,8 @@ void parse_file(std::string &file_path)
             };
             
             get_docstring_arg_descr(functionInfo);
+            functionInfo.update_descriptions();
+            
             infos.emplace_back(functionInfo);
         }
     }
@@ -526,10 +528,9 @@ void write_to_file_position(std::vector<FunctionInfo> &&infos, const std::string
     file.close();
 }
 
-PYBIND11_MODULE(example, m)
+PYBIND11_MODULE(docstringFormat, m)
 {
-    m.doc() = "pybind11 example plugin"; // optional module docstring
-
+    m.doc() = "pybind11 plugin to add automatically add docstring"; // optional module docstring
     m.def("parse_file", &parse_file, "A function that parses a file",
           py::arg("file_path"),
           "The file_path where automatically docstrings should be added.");

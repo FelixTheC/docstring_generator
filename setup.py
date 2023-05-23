@@ -16,18 +16,18 @@ __version__ = "0.0.20"
 
 ext_modules = [
     Pybind11Extension(
-        "example",
-        ["src/example.cpp", ],
+        "docstringFormat",
+        ["src/docstringFormat.cpp", ],
     ),
 ]
 
 setup(
-    name="example",
+    name="docstringFormat",
     version=__version__,
     author="Felix Eisenmenger",
     author_email="fbernt87@gmail.com",
     url="https://github.com/pybind/python_example",
-    description="A test project using pybind11",
+    description="Generate Docstrings with type-hint information.",
     long_description="",
     ext_modules=ext_modules,
     extras_require={"test": "pytest"},
@@ -35,5 +35,5 @@ setup(
     # level" feature, but in the future it may provide more features.
     cmdclass={"build_ext": build_ext},
     zip_safe=False,
-    python_requires=">=3.10",
+    python_requires="<=3.11",
 )
