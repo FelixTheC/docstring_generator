@@ -14,6 +14,13 @@ namespace py = pybind11;
 
 const std::string FILE_PATH = "/home/felix/PycharmProjects/docstring_generator/examples/mixed_before.py";
 
+enum class DocstringFormatStyle
+{
+    reST,
+    GOOGLE,
+    NUMPY
+};
+
 FunctionDocstring get_docstring(py::object &obj, py::module &ast_module) noexcept;
 std::string parse_ast_constant(py::object &obj, py::module &ast_module) noexcept;
 std::string parse_ast_name(py::object &obj, py::module &ast_module) noexcept;
@@ -22,7 +29,9 @@ std::string parse_ast_attribute(py::object &obj, py::module &ast_module) noexcep
 std::string parse_ast_tuple_list(py::object &obj, py::module &ast_module) noexcept;
 std::string parse_ast_binop(py::object &obj, py::module &ast_module) noexcept;
 std::string parse_ast_obj(py::object &obj, py::module &ast_module) noexcept;
-void write_to_file_position(std::vector<FunctionInfo> &&infos, const std::string &file_path) noexcept;
+void write_to_file_position(std::vector<FunctionInfo> &&infos,
+                            const std::string &file_path,
+                            DocstringFormatStyle &formatStyle) noexcept;
 
 
 FunctionDocstring get_docstring(const py::object obj, py::module &ast_module) noexcept
@@ -417,7 +426,7 @@ void get_docstring_arg_descr(FunctionInfo &functionInfo) noexcept
     }
 }
 
-void parse_file(std::string &file_path)
+void parse_file(std::string &file_path, DocstringFormatStyle &formatStyle)
 {
     std::string file_path_cache = file_path;
     py::module ast_module = py::module::import("ast");
@@ -469,13 +478,14 @@ void parse_file(std::string &file_path)
         }
     }
     
-    write_to_file_position(std::move(infos), file_path);
+    write_to_file_position(std::move(infos), file_path, formatStyle);
 }
 
-void write_to_file_position(std::vector<FunctionInfo> &&infos, const std::string &file_path) noexcept
+void write_to_file_position(std::vector<FunctionInfo> &&infos,
+                            const std::string &file_path,
+                            DocstringFormatStyle &formatStyle) noexcept
 {
     std::fstream file;
-    GoogleDocstring googleDocstring {};
     
     auto lines = std::make_unique<std::vector<std::string>>();
     
@@ -506,11 +516,26 @@ void write_to_file_position(std::vector<FunctionInfo> &&infos, const std::string
         }
 
         lines->erase(lines->begin() + start_pos, lines->begin() + end_pos);
+    
+        std::unique_ptr<DocstringFormat> docstring_format;
         
-        googleDocstring.functionInfo = val;
-        googleDocstring.check_current_docstring();
+        switch (formatStyle)
+        {
+            case DocstringFormatStyle::reST:
+                docstring_format = std::make_unique<reStructuredDocstring>();
+                break;
+            case DocstringFormatStyle::GOOGLE:
+                docstring_format = std::make_unique<GoogleDocstring>();
+                break;
+            case DocstringFormatStyle::NUMPY:
+                docstring_format = std::make_unique<NumpyDocstring>();
+                break;
+        }
+    
+        docstring_format->functionInfo = val;
+        docstring_format->check_current_docstring();
         
-        lines->insert(lines->begin() + start_pos, googleDocstring.docstring());
+        lines->insert(lines->begin() + start_pos, docstring_format->docstring());
     }
     
     file.open(file_path, std::ios::out);
@@ -528,10 +553,19 @@ void write_to_file_position(std::vector<FunctionInfo> &&infos, const std::string
     file.close();
 }
 
+
 PYBIND11_MODULE(docstringFormat, m)
 {
     m.doc() = "pybind11 plugin to add automatically add docstring"; // optional module docstring
     m.def("parse_file", &parse_file, "A function that parses a file",
           py::arg("file_path"),
-          "The file_path where automatically docstrings should be added.");
+          py::arg("formatStyle"),
+          "The file_path where automatically docstrings should be added.",
+          "In which style should the Docstring be written.");
+    
+    py::enum_<DocstringFormatStyle>(m, "DocstringFormatStyle")
+            .value("reST", DocstringFormatStyle::reST)
+            .value("GOOGLE", DocstringFormatStyle::GOOGLE)
+            .value("NUMPY", DocstringFormatStyle::NUMPY)
+            .export_values();
 }

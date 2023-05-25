@@ -75,6 +75,34 @@ std::ostream& operator<<(std::ostream &out, ParameterKind const &obj) noexcept
     return out;
 }
 
+std::string remove_trailing_whitespace(std::string &txt)
+{
+    // remove trailing whitespaces
+    for (size_t idx = txt.size() - 1; idx > 0; --idx)
+    {
+        if (!std::isspace(txt[idx]))
+        {
+            return txt.substr(0, idx + 1);
+        }
+    }
+    
+    return txt;
+}
+
+std::string remove_whitespace(const std::string &txt)
+{
+    // remove trailing whitespaces
+    for (size_t idx = 0; idx < txt.size(); ++idx)
+    {
+        if (!std::isspace(txt[idx]))
+        {
+            return txt.substr(idx);
+        }
+    }
+    
+    return txt;
+}
+
 struct FunctionParameter
 {
     std::string name;
@@ -99,16 +127,8 @@ struct FunctionParameter
         }
         
         auto new_description = descr.substr(start_pos, end_pos - start_pos);
-    
-        // remove trailing whitespaces
-        for (size_t idx = new_description.size() - 1; idx > 0; --idx)
-        {
-            if (!std::isspace(new_description[idx]))
-            {
-                description = new_description.substr(0, idx + 1);
-                break;
-            }
-        }
+        
+        description = remove_trailing_whitespace(new_description);
     }
 };
 
@@ -187,6 +207,8 @@ struct DocstringFormat
     virtual std::string docstringReturn() noexcept = 0;
     
     virtual void check_current_docstring() noexcept = 0;
+    
+    virtual ~DocstringFormat() = default;
     
     [[ nodiscard ]] std::string docstring() noexcept
     {
@@ -372,21 +394,42 @@ struct reStructuredDocstring : DocstringFormat
 
 struct NumpyDocstring : DocstringFormat
 {
-    void check_current_docstring() noexcept override {}
+    void check_current_docstring() noexcept override
+    {
+        auto current_py_tab = get_tabs();
+        auto numpy_args_begin = functionInfo.docstring.docstring.find("Parameters");
+        
+        if (numpy_args_begin < std::string::npos)
+        {
+            functionInfo.docstring.docstring = functionInfo.docstring.docstring.substr(0, numpy_args_begin - (current_py_tab.size() + 1));
+            functionInfo.docstring.end_line = functionInfo.docstring.start_line + numpy_args_begin;
+        }
+    }
     
     std::string docstringArgs() noexcept override
     {
-        std::stringstream sstream;
-        sstream << "Parameters\n";
-        sstream << "----------\n";
-        std::for_each(functionInfo.args.begin(), functionInfo.args.end(),
-                      [&sstream](const FunctionParameter &val)
+        std::stringstream docstream;
+        auto current_py_tab = get_tabs();
+    
+        if (!functionInfo.docstring.docstring.empty())
         {
-            sstream << val.name;
+            docstream << functionInfo.docstring.docstring;
+            docstream << "\n";
+        }
+    
+        docstream << current_py_tab << "Parameters\n";
+        docstream << current_py_tab << "----------\n";
+        std::for_each(functionInfo.args.begin(), functionInfo.args.end(),
+                      [&docstream, &current_py_tab](const FunctionParameter &val)
+        {
+            std::stringstream sstream;
+            
+            sstream << current_py_tab << val.name;
+            sstream << " :" ;
             
             if (!val.type.empty())
             {
-              sstream << " : " << val.type;
+              sstream << " " << val.type;
               
               if (!val.default_value.empty())
               {
@@ -394,40 +437,53 @@ struct NumpyDocstring : DocstringFormat
               }
             }
             
-            sstream << "\n";
-            sstream << PY_TAB << val.description;
-            
             if (!val.default_value.empty())
             {
-              sstream << "(default is " << val.default_value << ")";
+                if (!val.type.empty())
+                {
+                    sstream << ", ";
+                }
+                sstream << "default: " << val.default_value;
             }
             
-            sstream << "\n";
+            sstream << " [" << val.kind << "]";
+            
+            if (!val.description.empty())
+            {
+                sstream << "\n";
+                sstream << current_py_tab << PY_TAB << remove_whitespace(val.description);
+            }
+    
+            auto docstring = sstream.str();
+            docstring = remove_trailing_whitespace(docstring);
+            
+            docstream << docstring << "\n";
         });
         
-        return sstream.str();
+        return docstream.str();
     }
     
     std::string docstringReturn() noexcept override
     {
         std::stringstream sstream;
-        
-        sstream << "Returns\n";
-        sstream << "-------\n";
-//        sstream << returnText.name;
+        auto current_py_tab = get_tabs();
     
         if (!functionInfo.returns.type.empty())
         {
-            sstream << " : " << functionInfo.returns.type;
+            sstream << "\n";
+            sstream << current_py_tab << "Returns\n";
+            sstream << current_py_tab << "-------\n";
+            
+            sstream << current_py_tab << functionInfo.returns.type;
+        }
         
-            if (!functionInfo.returns.type.empty())
-            {
-                sstream << ", optional";
-            }
+        if (!functionInfo.returns.description.empty())
+        {
+            sstream << "\n";
+            sstream << current_py_tab << PY_TAB << functionInfo.returns.description;
         }
     
         sstream << "\n";
-        sstream << PY_TAB << functionInfo.returns.description << "\n";
         
         return sstream.str();
     }
