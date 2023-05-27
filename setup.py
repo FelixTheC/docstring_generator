@@ -1,10 +1,11 @@
 # Available at setup time due to pyproject.toml
 import pathlib
 from glob import glob
-from setuptools import find_packages, setup
-from pybind11.setup_helpers import Pybind11Extension, build_ext
 
-__version__ = "0.0.24"
+from pybind11.setup_helpers import Pybind11Extension, build_ext
+from setuptools import find_packages, setup
+
+__version__ = "0.0.25"
 
 HERE = pathlib.Path(__file__).parent
 README = (HERE / "README.md").read_text()
@@ -21,7 +22,9 @@ README = (HERE / "README.md").read_text()
 ext_modules = [
     Pybind11Extension(
         "docstring_generator_ext",
-        ["src/docstringFormat.cpp", ],
+        [
+            "src/docstringFormat.cpp",
+        ],
     ),
 ]
 
