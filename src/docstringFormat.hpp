@@ -30,6 +30,13 @@ enum class ParameterKind
     KEYWORD_ARG,
 };
 
+enum class DocstringFormatStyle
+{
+    reST,
+    GOOGLE,
+    NUMPY
+};
+
 ParameterKind from_str(const std::string &kind)
 {
     if (kind == "Argument")
@@ -86,12 +93,12 @@ std::string remove_trailing_whitespace(std::string &txt)
         }
     }
     
-    return txt;
+    return "";
 }
 
 std::string remove_whitespace(const std::string &txt)
 {
-    // remove trailing whitespaces
+    // remove prefix whitespaces
     for (size_t idx = 0; idx < txt.size(); ++idx)
     {
         if (!std::isspace(txt[idx]))
@@ -100,7 +107,7 @@ std::string remove_whitespace(const std::string &txt)
         }
     }
     
-    return txt;
+    return "";
 }
 
 struct FunctionParameter
@@ -112,23 +119,67 @@ struct FunctionParameter
     uint line_no;
     std::string description;
     
+    void update_description(const std::string &descr, DocstringFormatStyle &formatStyle)
+    {
+        switch (formatStyle)
+        {
+            case DocstringFormatStyle::reST:
+                update_rest_description(descr);
+                break;
+            case DocstringFormatStyle::GOOGLE:
+            case DocstringFormatStyle::NUMPY:
+                update_description(descr);
+                break;
+        }
+    }
+    
     void update_description(const std::string &descr)
     {
         std::stringstream sstream;
         sstream << kind;
-        
+    
         auto kind_name = sstream.str();
         auto start_pos = descr.find(kind_name) + kind_name.size() + 2;
         auto end_pos = descr.size();
-        
+    
         if (!default_value.empty())
         {
             end_pos = descr.find("default") - 2;
         }
-        
+    
         auto new_description = descr.substr(start_pos, end_pos - start_pos);
-        
+    
         description = remove_trailing_whitespace(new_description);
+    }
+    
+    void update_rest_description(const std::string &descr)
+    {
+        std::stringstream sstream;
+        
+        auto param_name = ":param " + name + ":";
+        auto type_param = ":type " + name + ":";
+        auto kind_param = ":kind " + name + ":";
+        auto start_pos = descr.find(param_name) + param_name.size();
+        size_t end_pos = 0;
+        
+        if (!default_value.empty())
+        {
+            end_pos = descr.find("(default is") - 2;
+        }
+        else if (!type.empty())
+        {
+            end_pos = descr.find(type_param) - 2;
+        }
+        else
+        {
+            end_pos = descr.find(kind_param) - 2;
+        }
+        
+        if ((end_pos + 2) < std::string::npos)
+        {
+            auto new_description = descr.substr(start_pos, end_pos - start_pos);
+            description = remove_whitespace(remove_trailing_whitespace(new_description));
+        }
     }
 };
 
@@ -173,11 +224,20 @@ struct FunctionInfo
         return 0;
     }
     
-    void update_descriptions()
+    void update_descriptions(DocstringFormatStyle &formatStyle)
     {
         for (int idx = 0; idx < args.size(); ++idx)
         {
-            auto start_pos = docstring.docstring.find(args[idx].name);
+            size_t start_pos;
+            
+            if (formatStyle == DocstringFormatStyle::reST)
+            {
+                start_pos = docstring.docstring.find(":param " + args[idx].name + ":");
+            }
+            else
+            {
+                start_pos = docstring.docstring.find(args[idx].name);
+            }
             
             if (start_pos < std::string::npos)
             {
@@ -193,7 +253,7 @@ struct FunctionInfo
                 }
                 
                 std::string part_of_interest = docstring.docstring.substr(start_pos, end_pos - start_pos);
-                args[idx].update_description(part_of_interest);
+                args[idx].update_description(part_of_interest, formatStyle);
             }
         }
     }
@@ -348,45 +408,83 @@ struct GoogleDocstring : DocstringFormat
 
 struct reStructuredDocstring : DocstringFormat
 {
-    void check_current_docstring() noexcept override {}
+    void check_current_docstring() noexcept override
+    {
+        auto current_py_tab = get_tabs();
+        auto rest_args_begin = functionInfo.docstring.docstring.find(":param");
+    
+        if (rest_args_begin < std::string::npos)
+        {
+            functionInfo.docstring.docstring = functionInfo.docstring.docstring.substr(0, rest_args_begin - (current_py_tab.size() + 1));
+            functionInfo.docstring.end_line = functionInfo.docstring.start_line + rest_args_begin;
+        }
+    }
     
     std::string docstringArgs() noexcept override
     {
-        std::stringstream sstream;
-        std::for_each(functionInfo.args.begin(), functionInfo.args.end(),
-                    [&sstream](const FunctionParameter &val)
+        std::stringstream docstream;
+    
+        auto current_py_tab = get_tabs();
+    
+        if (!functionInfo.docstring.docstring.empty())
         {
-         
-             sstream << ":param " << val.name << ": (" << val.kind << ")";
+            docstream << functionInfo.docstring.docstring;
+            docstream << "\n";
+        }
+        
+        std::for_each(functionInfo.args.begin(), functionInfo.args.end(),
+                    [&docstream, &current_py_tab](const FunctionParameter &val)
+        {
+    
+            docstream << current_py_tab << ":param " << val.name << ":";
              
              if (!val.description.empty())
              {
-                 sstream << " " << val.description;
+                 docstream << " " << val.description;
              }
              
-             sstream << "\n";
+             docstream << "\n";
+            
+             if (!val.default_value.empty())
+            {
+                docstream << current_py_tab << PY_TAB << "(default is " << val.default_value << ")\n";
+            }
              
              if (!val.type.empty())
              {
-                 sstream << ":type " << val.name << ": " << val.type << ")" << "\n";
+                 docstream << current_py_tab << ":type " << val.name << ": " << val.type;
+                 if (!val.default_value.empty())
+                 {
+                     docstream << ", optional";
+                 }
+                 
+                 docstream << "\n";
              }
-             if (!val.default_value.empty())
+             else if (val.type.empty() && !val.default_value.empty())
              {
-                 sstream << "(default is " << val.default_value << ")\n";
+                 docstream << current_py_tab << ":type " << val.name << ": optional\n";
              }
+    
+            docstream << current_py_tab << ":kind " << val.name << ": " << val.kind << "\n";
+
         });
         
-        return sstream.str();
+        return docstream.str();
     }
     
     std::string docstringReturn() noexcept override
     {
         std::stringstream sstream;
-        sstream << ":returns:" << functionInfo.returns.description << "\n";
-        sstream << ":returns:\n";
+    
+        auto current_py_tab = get_tabs();
+        
+        if (!functionInfo.returns.description.empty())
+        {
+            sstream << current_py_tab << ":returns:" << functionInfo.returns.description << "\n";
+        }
         if (!functionInfo.returns.type.empty())
         {
-            sstream << ":rtype:" << functionInfo.returns.type << "\n";
+            sstream << current_py_tab << ":rtype:" << functionInfo.returns.type << "\n";
         }
         return sstream.str();
     }

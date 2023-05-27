@@ -14,13 +14,6 @@ namespace py = pybind11;
 
 const std::string FILE_PATH = "/home/felix/PycharmProjects/docstring_generator/examples/mixed_before.py";
 
-enum class DocstringFormatStyle
-{
-    reST,
-    GOOGLE,
-    NUMPY
-};
-
 FunctionDocstring get_docstring(py::object &obj, py::module &ast_module) noexcept;
 std::string parse_ast_constant(py::object &obj, py::module &ast_module) noexcept;
 std::string parse_ast_name(py::object &obj, py::module &ast_module) noexcept;
@@ -472,7 +465,7 @@ void parse_file(std::string &file_path, DocstringFormatStyle &formatStyle)
             };
             
             get_docstring_arg_descr(functionInfo);
-            functionInfo.update_descriptions();
+            functionInfo.update_descriptions(formatStyle);
             
             infos.emplace_back(functionInfo);
         }
@@ -554,7 +547,7 @@ void write_to_file_position(std::vector<FunctionInfo> &&infos,
 }
 
 
-PYBIND11_MODULE(docstringFormat, m)
+PYBIND11_MODULE(docstring_generator, m)
 {
     m.doc() = "pybind11 plugin to add automatically add docstring"; // optional module docstring
     m.def("parse_file", &parse_file, "A function that parses a file",

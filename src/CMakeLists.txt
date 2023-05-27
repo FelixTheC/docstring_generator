@@ -17,16 +17,15 @@ if ("$ENV{TESTING}")
     target_link_libraries(src gtest_main)
 
     include(GoogleTest)
-    gtest_discover_tests(annadb_driver)
 
 else ()
-#    find_package(Python 3.10 COMPONENTS Interpreter Development REQUIRED)
-#    add_subdirectory(extern/pybind11)
+    find_package(Python 3.10 COMPONENTS Interpreter Development REQUIRED)
+    add_subdirectory(extern/pybind11)
 
     add_executable(src main.cpp docstringFormat.hpp)
-#    pybind11_add_module(src example.cpp)
+    pybind11_add_module(src example.cpp)
 
-#    target_link_libraries(src PRIVATE pybind11::module pybind11::lto pybind11::windows_extras)
+    target_link_libraries(src PRIVATE pybind11::module pybind11::lto pybind11::windows_extras)
 endif ()
 
 

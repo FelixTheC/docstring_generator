@@ -1,9 +1,13 @@
 # Available at setup time due to pyproject.toml
+import pathlib
 from glob import glob
-from setuptools import setup
+from setuptools import find_packages, setup
 from pybind11.setup_helpers import Pybind11Extension, build_ext
 
-__version__ = "0.0.21"
+__version__ = "0.0.24"
+
+HERE = pathlib.Path(__file__).parent
+README = (HERE / "README.md").read_text()
 
 # The main interface is through Pybind11Extension.
 # * You can add cxx_std=11/14/17, and then build_ext can be removed.
@@ -16,19 +20,29 @@ __version__ = "0.0.21"
 
 ext_modules = [
     Pybind11Extension(
-        "docstringFormat",
+        "docstring_generator",
         ["src/docstringFormat.cpp", ],
     ),
 ]
 
 setup(
-    name="docstringFormat",
+    name="docstring_generator",
     version=__version__,
-    author="Felix Eisenmenger",
-    author_email="fbernt87@gmail.com",
-    url="https://github.com/pybind/python_example",
-    description="Generate Docstrings with type-hint information.",
-    long_description="",
+    url="https://github.com/FelixTheC/docstring_generator",
+    license="MIT",
+    author="FelixTheC",
+    author_email="fberndt87@gmail.com",
+    description="Generate Docstrings with type-hint information",
+    long_description=README,
+    long_description_content_type="text/markdown",
+    classifiers=[
+        "Development Status :: 4 - Beta",
+        "License :: OSI Approved :: MIT License",
+        "Programming Language :: Python :: 3",
+        "Topic :: Utilities",
+        "Topic :: Software Development :: Documentation",
+        "Typing :: Typed",
+    ],
     ext_modules=ext_modules,
     extras_require={"test": "pytest"},
     # Currently, build_ext only provides an optional "highest supported C++
