@@ -14,7 +14,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
@@ -23,12 +22,11 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install poetry>=1.2.1 twine
-
+        pip install setuptools wheel twine
     - name: Build and publish
       env:
         TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
         TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
       run: |
-        poetry build
+        python setup.py sdist bdist_wheel
         twine upload dist/*
