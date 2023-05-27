@@ -5,7 +5,7 @@ from glob import glob
 from pybind11.setup_helpers import Pybind11Extension, build_ext
 from setuptools import find_packages, setup
 
-__version__ = "0.0.25"
+__version__ = "0.0.26"
 
 HERE = pathlib.Path(__file__).parent
 README = (HERE / "README.md").read_text()

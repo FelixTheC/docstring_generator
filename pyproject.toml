@@ -1,3 +1,27 @@
+[tool.poetry]
+name = "docstring_generator_ext"
+version = "0.0.26"
+description = "Auto generate docstring from type-hints."
+authors = ["FelixTheC <felixeisenmenger@gmx.net>"]
+readme = "README.md"
+license = "MIT"
+repository = "https://github.com/FelixTheC/docstring_generator"
+packages = [{include = "src"}]
+classifiers=[
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Utilities",
+    "Topic :: Software Development :: Documentation",
+    "Typing :: Typed",
+]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+pybind11 = "^2.8"
+
 [build-system]
-requires = ["setuptools>=42", "wheel", "pybind11~=2.6.1"]
-build-backend = "setuptools.build_meta"
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
