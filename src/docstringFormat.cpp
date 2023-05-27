@@ -547,7 +547,7 @@ void write_to_file_position(std::vector<FunctionInfo> &&infos,
 }
 
 
-PYBIND11_MODULE(docstring_generator, m)
+PYBIND11_MODULE(docstring_generator_ext, m)
 {
     m.doc() = "pybind11 plugin to add automatically add docstring"; // optional module docstring
     m.def("parse_file", &parse_file, "A function that parses a file",

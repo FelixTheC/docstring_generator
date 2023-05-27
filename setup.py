@@ -20,13 +20,13 @@ README = (HERE / "README.md").read_text()
 
 ext_modules = [
     Pybind11Extension(
-        "docstring_generator",
+        "docstring_generator_ext",
         ["src/docstringFormat.cpp", ],
     ),
 ]
 
 setup(
-    name="docstring_generator",
+    name="docstring_generator_ext",
     version=__version__,
     url="https://github.com/FelixTheC/docstring_generator",
     license="MIT",
