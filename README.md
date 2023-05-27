@@ -1,32 +1,22 @@
 # docstring_generator
-Auto generate docstring from type-hints
+Auto generate docstring from type-hints for python functions and class methods.
 
 ## How to use it
 ```shell
-gendocs file.py
+gendocs_new file.py
 ```
 
 ```shell
-gendocs mydir/
+gendocs_new mydir/
 ```
 
 ## Options
 
 ### style
 - `--style`
-- Docstring style [numpy, rest].  [default: numpy]
+- Docstring style [numpy, google, rest].  [default: numpy]
 
-### ignore-classes
-- `--ignore-classes`
-- when used then no class will be modified
-
-### ignore-functions
-- `--ignore-functions`
-- when used then no function will be modified this
-- __!important__ class methods are no functions in this context
-
-
-### Add additional information before running `gendocs` 
+### Add additional information before running `gendocs_new` 
 - when adding `$<num>` into your docstring these will then be replaced with parameter at this index
 - Example:
 ```python
@@ -62,6 +52,10 @@ def foo(val_a: int, val_b: List[int]):
     """
 ```
 
+## FAQ
+#### what happens if I re-run the docstring creation?
+- nothing if all stays the same, changed parameter descriptions will be ignored only changes of the function header will be used
+
 ## Examples
 - An example can be found under examples
 
@@ -71,6 +65,9 @@ def foo(val_a: int, val_b: List[int]):
 
 #### Versioning
 - For the versions available, see the tags on this repository.
+
+### Support for older version
+- the previous command `gendocs` is still supported for this version.
 
 ### Authors
 - Felix Eisenmenger
