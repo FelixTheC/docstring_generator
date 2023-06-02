@@ -226,7 +226,7 @@ struct FunctionInfo
     
     void update_descriptions(DocstringFormatStyle &formatStyle)
     {
-        for (int idx = 0; idx < args.size(); ++idx)
+        for (size_t idx = 0; idx < args.size(); ++idx)
         {
             size_t start_pos;
             
