@@ -128,3 +128,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 .docstring_generator/
+/venv_3_10/
+/src/.idea/
