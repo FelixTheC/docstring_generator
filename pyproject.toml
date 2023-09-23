@@ -9,7 +9,7 @@ profile = "black"
 
 [tool.poetry]
 name = "docstring-generator"
-version = "0.3.3"
+version = "0.3.4"
 description = "Auto generate docstring from type-hints."
 authors = ["FelixTheC <felixeisenmenger@gmx.net>"]
 readme = "README.md"
