@@ -15,6 +15,18 @@ def foo(
     """
     Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
     sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
+    
+    
+    Parameters
+    ----------
+    val_a : argument of type `str` allowed values are `foo` or `bar`
+    val_b : argument of type Dict(str, int or float)
+    val_c : argument of type str
+    	Default is Hello World
+    
+    Returns
+    -------
+    Dict(str, int or float)
     """
 
 
@@ -25,19 +37,11 @@ def bar(val_a: int, val_b: int) -> int:
 class Vehicle:
     """
     The Vehicle object contains lots of vehicles
+    
+    
+    Parameters
+    ----------
+    arg : argument of type str
+    args : variadic arguments of type tuple
+    kwargs : variadic keyword arguments of type dict
     """
-
-    def __init__(self, arg: str, *args, **kwargs):
-        """
-        $2 at least one value of type string is needed
-        """
-        self.arg = arg
-
-    def cars(self, distance: float, destination: str):
-        pass
-
-    def fuel(self, fuel):
-        """
-        Some text
-        """
-        pass

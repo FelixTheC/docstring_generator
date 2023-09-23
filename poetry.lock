@@ -88,16 +88,16 @@ files = [
 
 [[package]]
 name = "docstring-generator-ext"
-version = "0.0.28"
+version = "0.0.31"
 description = "Generate Docstrings with type-hint information"
 optional = false
-python-versions = "<=3.11"
+python-versions = "<3.12"
 files = [
-    {file = "docstring_generator_ext-0.0.28.tar.gz", hash = "sha256:e995e00bd643920e9e9d7068185e28e1a37066b28846fdfbb13ae02f751bf9e1"},
+    {file = "docstring_generator_ext-0.0.31.tar.gz", hash = "sha256:93d0904c40dfccd73d2cfccf98e17bea95d915a69c692e8d984e2fa872280522"},
 ]
 
-[package.dependencies]
-pybind11 = ">=2.8,<3.0"
+[package.extras]
+test = ["pytest"]
 
 [[package]]
 name = "iniconfig"
@@ -205,20 +205,6 @@ files = [
 ]
 
 [[package]]
-name = "pybind11"
-version = "2.10.4"
-description = "Seamless operability between C++11 and Python"
-optional = false
-python-versions = ">=3.6"
-files = [
-    {file = "pybind11-2.10.4-py3-none-any.whl", hash = "sha256:ec9be0c45061c829648d7e8c98a7d041768b768c934acd15196e0f1943d9a818"},
-    {file = "pybind11-2.10.4.tar.gz", hash = "sha256:0bb621d3c45a049aa5923debb87c5c0e2668227905c55ebe8af722608d8ed927"},
-]
-
-[package.extras]
-global = ["pybind11-global (==2.10.4)"]
-
-[[package]]
 name = "pyparsing"
 version = "3.0.9"
 description = "pyparsing module - Classes and methods to define and execute parsing grammars"
@@ -280,4 +266,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<=3.11"
-content-hash = "ae0b8615756ac803a0201e08026733b9a7349cb216f05948d38af63a8b26f457"
+content-hash = "d30aa55b0c859e99f1731cd2ef90fb4736c099f1d1cacc6f146d9edd6a63faf0"
