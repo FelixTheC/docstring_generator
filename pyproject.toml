@@ -37,7 +37,7 @@ click = "^8.1.3"
 docstring-generator-ext = ">=0.0.33"
 
 [tool.poetry.group.dev.dependencies]
-black = "^22.8.0"
+black = ">=22.8,<25.0"
 isort = "^5.10.1"
 pytest = "^7.1.3"
 
