@@ -28,6 +28,11 @@ dev = [
     "ruff>=0.15.12",
 ]
 
+[tool.poetry.group.dev.dependencies]
+black = ">=22.8,<25.0"
+isort = "^5.10.1"
+pytest = "^7.1.3"
+
 [project.urls]
 Repository = "https://github.com/FelixTheC/docstring_generator"
 
