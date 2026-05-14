@@ -1,7 +1,7 @@
 [![Python 3.10](https://img.shields.io/badge/python-3-blue.svg)](https://www.python.org/downloads/)
 [![PyPI version](https://badge.fury.io/py/docstring-generator.svg)](https://badge.fury.io/py/docstring-generator)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
 [![](https://img.shields.io/pypi/dm/docstring-generator.svg)](https://pypi.org/project/docstring-generator/)
 
 # docstring_generator
@@ -74,9 +74,10 @@ def foo(val_a: int, val_b: List[int]):
 
 - pip install docstring-generator
 
-## Dependency `docstring-generator-ext`
+## Dependency 
 
-- this extension is the heart of this project and written with pybind11 (c++)
+- [docstring-generator-ext](https://github.com/FelixTheC/docstring_generator_ext)
+  - this extension is the heart of this project and written with pybind11 (c++)
 
 ## Versioning
 

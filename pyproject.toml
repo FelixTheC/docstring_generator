@@ -1,46 +1,46 @@
-[tool.black]
-line-length = 100
-target-version = ['py39']
-
-[tool.isort]
-combine_as_imports = true
-line_length = 100
-profile = "black"
-
-[tool.poetry]
+[project]
 name = "docstring-generator"
 version = "0.3.4"
 description = "Auto generate docstring from type-hints."
-authors = ["FelixTheC <felixeisenmenger@gmx.net>"]
+authors = [
+    { name = "FelixTheC" },
+]
 readme = "README.md"
-license = "MIT"
-repository = "https://github.com/FelixTheC/docstring_generator"
-packages = [{include = "docstring_generator"}]
+requires-python = ">=3.13"
+
 classifiers=[
-    "Development Status :: 4 - Beta",
     "Environment :: Console",
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
     "Topic :: Utilities",
     "Topic :: Software Development :: Documentation",
     "Typing :: Typed",
 ]
 
-[tool.poetry.scripts]
-gendocs_new = "docstring_generator.new_gen_docs:main"
+dependencies = [
+    "click >= 8.1.3",
+    "docstring-generator-ext>=1.0.2",
+]
 
-[tool.poetry.dependencies]
-python = ">=3.8,<=3.11"
-click = "^8.1.3"
-docstring-generator-ext = ">=0.0.33"
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+    "pytest-cov>=7.1.0",
+    "ruff>=0.15.12",
+]
 
-[tool.poetry.group.dev.dependencies]
-black = "^22.8.0"
-isort = "^5.10.1"
-pytest = "^7.1.3"
+[project.urls]
+Repository = "https://github.com/FelixTheC/docstring_generator"
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+# --- TOOL CONFIGS ---
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+src = ["src"]
+exclude = ["tests"]
+
+[project.scripts]
+gendocs_new = "docstring_generator.new_gen_docs:main"
