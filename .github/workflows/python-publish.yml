@@ -38,6 +38,7 @@ jobs:
 
   publish:
     name: Publish to PyPI
+    needs: update_version
     runs-on: ubuntu-latest
     permissions:
       id-token: write
