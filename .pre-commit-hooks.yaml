@@ -2,6 +2,7 @@
   name: Generate docstrings
   description: Auto-generate docstrings from type hints using docstring-generator
   language: python
+  language_version: python3.13
   entry: gendocs_new
   types: [python]
   args: []
