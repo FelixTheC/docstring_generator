@@ -1,0 +1,7 @@
+- id: gendocs
+  name: Generate docstrings
+  description: Auto-generate docstrings from type hints using docstring-generator
+  language: python
+  entry: gendocs_new
+  types: [python]
+  args: []

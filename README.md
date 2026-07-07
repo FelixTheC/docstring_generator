@@ -5,29 +5,64 @@
 [![](https://img.shields.io/pypi/dm/docstring-generator.svg)](https://pypi.org/project/docstring-generator/)
 
 # docstring_generator
-Auto generate docstring from type-hints for python functions and class methods.
 
-## How to use it
+> **Stop writing boilerplate docstrings by hand.** `docstring_generator` reads your type hints and generates professional, standards-compliant documentation in seconds — keeping your codebase clean, consistent, and AI-ready.
+
+Python documentation tooling that automatically generates docstrings for functions and class methods from their type hints, with full support for **NumPy**, **Google**, and **reStructuredText** styles.
+
+---
+
+## Why docstring_generator?
+
+Good documentation is no longer optional. AI coding assistants, static analysis tools, and auto-generated API docs all depend on structured, accurate docstrings. Yet writing them by hand is tedious, error-prone, and rarely kept up-to-date.
+
+`docstring_generator` solves this by:
+
+- ⚡ **Saving hours** — generate docs for an entire codebase in one command
+- 🔄 **Staying in sync** — re-running only updates what changed in the function signature
+- ✍️ **Preserving your words** — existing descriptions and custom notes are never overwritten
+- 🧠 **AI-workflow friendly** — well-structured docstrings improve context quality for LLM-assisted development
+- 🏎️ **Blazing fast** — core engine written in C++ via [pybind11](https://github.com/FelixTheC/docstring_generator_ext)
+
+---
+
+## Quick Start
+
+One command. Any file or directory:
 
 ```shell
-gendocs_new file.py
+pip install docstring-generator
 ```
 
 ```shell
-gendocs_new mydir/
+gendocs_new file.py        # single file
+gendocs_new mydir/         # entire directory
 ```
+
+That's it. Your functions now have properly formatted docstrings.
+
+---
 
 ## Options
 
-### style
+### `--style` — Choose your docstring convention
 
-- `--style`
-- Docstring style [numpy, google, rest].  [default: numpy]
+| Style | Flag | Description |
+|-------|------|-------------|
+| NumPy | `--style numpy` | Standard in scientific Python (default) |
+| Google | `--style google` | Preferred in many enterprise codebases |
+| reStructuredText | `--style rest` | Compatible with Sphinx auto-documentation |
 
-### Add additional information before running `gendocs_new` 
+**Default:** `numpy`
 
-- when adding `$<num>` into your docstring these will then be replaced with parameter at this index
-- Example:
+---
+
+## Preserve Custom Descriptions with `$<num>` Placeholders
+
+Write your domain-specific notes once — `docstring_generator` will place them in the right parameter slot automatically.
+
+Use `$1`, `$2`, … in your docstring body to map descriptions to positional parameters:
+
 ```python
 from typing import List
 
@@ -41,7 +76,9 @@ def foo(val_a: int, val_b: List[int]):
     $2 nonumy eirmod tempor invidun
     """
 ```
-will become (here with numpy style)
+
+After running `gendocs_new` (NumPy style):
+
 ```python
 from typing import List
 
@@ -50,7 +87,7 @@ def foo(val_a: int, val_b: List[int]):
     """
     Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
     sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
-    
+
     Parameters
     ----------
     val_a : argument of type int
@@ -61,32 +98,70 @@ def foo(val_a: int, val_b: List[int]):
     """
 ```
 
+---
+
 ## FAQ
 
-### what happens if I re-run the docstring creation?
+### What happens if I re-run docstring generation?
 
-- nothing if all stays the same, changed parameter descriptions will be ignored only changes of the function header will be used
+Nothing is lost. If the function signature hasn't changed, the existing docstring stays untouched. If you add or rename parameters, only the structural part is updated — your custom descriptions are preserved.
+
+### Is it safe to use on an existing codebase?
+
+Yes. The tool is non-destructive by design. It never deletes content; it only adds or updates parameter sections based on type hints.
+
+### Does it work with class methods?
+
+Yes — both standalone functions and class methods are fully supported.
+
+---
 
 ## Examples
-- An example can be found under examples
 
-## Installing
+Ready-to-run examples are available in the [`examples/`](examples/) directory.
 
-- pip install docstring-generator
+---
 
-## Dependency 
+## Installation
 
-- [docstring-generator-ext](https://github.com/FelixTheC/docstring_generator_ext)
-  - this extension is the heart of this project and written with pybind11 (c++)
+```shell
+pip install docstring-generator
+```
+
+Requires Python 3.10+.
+
+---
+
+## How It Works
+
+The core engine is implemented in C++ and exposed to Python via [pybind11](https://github.com/pybind/pybind11), delivering performance that scales to large codebases without slowing down your workflow.
+
+- **Extension:** [docstring-generator-ext](https://github.com/FelixTheC/docstring_generator_ext) — the high-performance backbone of this project
+
+---
+
+## Roadmap
+
+Planned features and areas of investment:
+
+- [ ] Pre-commit hook integration for automatic docstring enforcement
+- [ ] IDE plugin support (JetBrains, VS Code)
+- [ ] Return type and raises documentation generation
+- [ ] CI/CD pipeline integration & docstring coverage reporting
+- [ ] LLM-assisted description generation (opt-in enrichment mode)
+
+Community feedback shapes priorities — open an issue to vote on features or suggest new ones.
+
+---
 
 ## Versioning
 
-- For the versions available, see the tags on this repository.
+Follows [Semantic Versioning](https://semver.org/). See the [tags](../../tags) for all available releases.
 
 ## Authors
 
-- Felix Eisenmenger
+- **Felix Eisenmenger** — creator & maintainer
 
 ## License
 
-- MIT License (MIT)
+MIT License — free to use in personal and commercial projects.
