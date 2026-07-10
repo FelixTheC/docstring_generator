@@ -22,6 +22,7 @@ Good documentation is no longer optional. AI coding assistants, static analysis 
 - 🔄 **Staying in sync** — re-running only updates what changed in the function signature
 - ✍️ **Preserving your words** — existing descriptions and custom notes are never overwritten
 - 🧠 **AI-workflow friendly** — well-structured docstrings improve context quality for LLM-assisted development
+- 🚨 **Exception-aware** — automatically detects `raise` statements and documents them in a `Raises` section, so failure modes are part of your API contract
 - 🏎️ **Blazing fast** — core engine written in C++ via [pybind11](https://github.com/FelixTheC/docstring_generator_ext)
 
 ---
@@ -97,6 +98,69 @@ def foo(val_a: int, val_b: List[int]):
 
     """
 ```
+
+---
+
+## Automatic `Raises` Extraction
+
+`docstring_generator` statically analyzes your function body for `raise` statements and adds a `Raises` section describing each exception — including the condition that triggers it. This works seamlessly with frameworks like **Pydantic**, **FastAPI**, or any custom validation logic.
+
+### Before
+
+```python
+class PluginConfig(BaseModel):
+    name: str = Field(default="default")
+    api_config: dict = Field(default_factory=dict)
+
+    @field_validator("api_config", mode='before')
+    @classmethod
+    def validate_api_config(cls, values: dict) -> dict:
+        required_key_obj = values.get("required_keys", None)
+        if not required_key_obj:
+            raise ValueError("The first key must be 'required_keys'")
+        if not isinstance(required_key_obj, dict):
+            raise ValueError("The 'required_keys' must be a dict")
+        return values
+```
+
+### After running `gendocs_new`
+
+```python
+class PluginConfig(BaseModel):
+    name: str = Field(default="default")
+    api_config: dict = Field(default_factory=dict)
+
+    @field_validator("api_config", mode='before')
+    @classmethod
+    def validate_api_config(cls, values: dict) -> dict:
+        """
+        Parameters
+        ----------
+        cls : [Argument]
+        values : dict [Argument]
+
+        Returns
+        -------
+        dict
+
+        Raises
+        -------
+        ValueError
+            If not isinstance(required_key_obj, dict)
+        ValueError
+            If not required_key_obj
+        """
+        required_key_obj = values.get("required_keys", None)
+        if not required_key_obj:
+            raise ValueError("The first key must be 'required_keys'")
+        if not isinstance(required_key_obj, dict):
+            raise ValueError("The 'required_keys' must be a dict")
+        return values
+```
+
+Every `raise` — even multiple ones in the same function — is captured, so complex validators document all their failure modes at once.
+
+No more hunting through code to find out what a function can throw — it's documented right where it matters.
 
 ---
 
@@ -191,10 +255,10 @@ The core engine is implemented in C++ and exposed to Python via [pybind11](https
 Planned features and areas of investment:
 
 - [x] Pre-commit hook integration for automatic docstring enforcement
-- [ ] IDE plugin support (JetBrains, VS Code)
 - [x] Return type documentation generation
 - [x] Raises documentation generation
 - [ ] CI/CD pipeline integration & docstring coverage reporting
+- [ ] IDE plugin support (JetBrains, VS Code)
 - [ ] LLM-assisted description generation (opt-in enrichment mode)
 
 Community feedback shapes priorities — open an issue to vote on features or suggest new ones.
