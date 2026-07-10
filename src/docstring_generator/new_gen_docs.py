@@ -27,7 +27,10 @@ def main(paths: tuple[str, ...], style: str) -> None:
                 docstring_generator_ext.parse_file(file.absolute().as_posix(), docstring_style)
 
         if path_.is_file() and path_.name.endswith(".py"):
-            docstring_generator_ext.parse_file(path_.absolute().as_posix(), docstring_style)
+            try:
+                docstring_generator_ext.parse_file(path_.absolute().as_posix(), docstring_style)
+            except SyntaxError as e:
+                print(f"Error processing file {path_}: {e}")
 
 
 if __name__ == "__main__":
