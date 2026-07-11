@@ -17,15 +17,15 @@ classifiers=[
 ]
 
 dependencies = [
-    "click >= 8.4.2",
-    "docstring-generator-ext==1.0.3.a-5",
+    "click == 8.4.2",
+    "docstring-generator-ext==2.0.2-beta",
 ]
 
 [dependency-groups]
 dev = [
-    "pytest>=9.0.3",
+    "pytest>=9.1.1",
     "pytest-cov>=7.1.0",
-    "ruff>=0.15.12",
+    "ruff==0.15.21",
 ]
 
 [tool.uv]

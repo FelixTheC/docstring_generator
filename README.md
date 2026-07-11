@@ -56,6 +56,50 @@ That's it. Your functions now have properly formatted docstrings.
 
 **Default:** `numpy`
 
+### `--check` — Docstring coverage report
+
+Scan a file or directory and get a coverage overview without modifying anything:
+
+```shell
+gendocs_new mydir/ --check
+```
+
+Outputs a per-file summary showing which functions are documented and which are missing docstrings.
+
+### `--strict` — Treat partial docstrings as missing
+
+By default, a function with any docstring counts as documented. Strict mode raises the bar:
+
+```shell
+gendocs_new mydir/ --check --strict
+```
+
+A partial docstring (e.g. missing parameter sections) is treated as undocumented in strict mode.
+
+### `--threshold` — Enforce a minimum coverage percentage
+
+Fail the check if coverage drops below a given percentage (0–100):
+
+```shell
+gendocs_new mydir/ --check --threshold 80
+```
+
+Useful in CI pipelines to enforce documentation standards across the codebase.
+
+---
+
+## Configuration via `pyproject.toml`
+
+Instead of passing flags on every invocation, persist defaults in your project's `pyproject.toml` under the `[tool.docstring_generator]` namespace:
+
+```toml
+[tool.docstring_generator]
+strict = true
+threshold = 90
+```
+
+CLI flags always override `pyproject.toml` values. The tool automatically walks up from the target path to find the nearest `pyproject.toml`.
+
 ---
 
 ## Preserve Custom Descriptions with `$<num>` Placeholders
@@ -257,8 +301,10 @@ Planned features and areas of investment:
 - [x] Pre-commit hook integration for automatic docstring enforcement
 - [x] Return type documentation generation
 - [x] Raises documentation generation
-- [ ] CI/CD pipeline integration & docstring coverage reporting
+- [x] Docstring coverage reporting (`--check`, `--strict`, `--threshold`)
+- [x] `pyproject.toml` configuration support
 - [ ] IDE plugin support (JetBrains, VS Code)
+- [ ] CI/CD pipeline gate (fail build below coverage threshold)
 - [ ] LLM-assisted description generation (opt-in enrichment mode)
 
 Community feedback shapes priorities — open an issue to vote on features or suggest new ones.
