@@ -303,6 +303,7 @@ Planned features and areas of investment:
 - [x] Raises documentation generation
 - [x] Docstring coverage reporting (`--check`, `--strict`, `--threshold`)
 - [x] `pyproject.toml` configuration support
+- [ ] add `>>` as placeholder for additional return description like `$1`
 - [ ] IDE plugin support (JetBrains, VS Code)
 - [ ] CI/CD pipeline gate (fail build below coverage threshold)
 - [ ] LLM-assisted description generation (opt-in enrichment mode)
