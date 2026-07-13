@@ -62,18 +62,32 @@ def load_toml_config(config_path: pathlib.Path | None) -> dict:
     default=None,
     help="Minimum required coverage percentage (0-100) to pass the check.",
 )
+@click.option("--exclude-file", type=str, multiple=True)
+@click.option("--exclude-dir", type=str, multiple=True)
+# @click.option("--overwrite-style", type=bool, default=False)
 def main(
     paths: tuple[str, ...],
     style: str,
     check: bool,
     strict: bool,
     threshold: int | None,
+    exclude_file: list[str],
+    exclude_dir: list[str],
+    # overwrite_style: bool,
 ) -> None:
     docstring_style = STYLE_MAP[style]
 
     config = load_toml_config(find_pyproject_toml(paths))
     _strict = strict or config.get("strict", False)
     _threshold = threshold or config.get("threshold", 100)
+    _exclude_files = config.get("exclude_files", [])
+    _exclude_dirs = config.get("exclude_dirs", [])
+
+    # CLI args always wins
+    if exclude_file:
+        _exclude_files = exclude_file
+    if exclude_dir:
+        _exclude_dirs = exclude_dir
 
     files_ = []
 
@@ -99,6 +113,8 @@ def main(
         print_results(checked_files, _strict, _threshold)
     else:
         for file in files_:
+            if file.name in _exclude_files or any(str(exclude_dir) in str(file) for exclude_dir in _exclude_dirs):
+                continue
             try:
                 docstring_generator_ext.parse_file(file.absolute().as_posix(), docstring_style)
             except SyntaxError as e:

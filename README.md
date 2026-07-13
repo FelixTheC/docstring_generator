@@ -86,6 +86,26 @@ gendocs_new mydir/ --check --threshold 80
 
 Useful in CI pipelines to enforce documentation standards across the codebase.
 
+### `--exclude-file` — Skip specific files
+
+Exclude one or more files from processing by name. Can be passed multiple times:
+
+```shell
+gendocs_new mydir/ --exclude-file conftest.py --exclude-file settings.py
+```
+
+Files whose name matches any of the provided values are skipped during docstring generation.
+
+### `--exclude-dir` — Skip specific directories
+
+Exclude one or more directories from processing. Can be passed multiple times:
+
+```shell
+gendocs_new mydir/ --exclude-dir tests --exclude-dir migrations
+```
+
+Any file whose path contains one of the given directory names is skipped.
+
 ---
 
 ## Configuration via `pyproject.toml`
@@ -96,6 +116,8 @@ Instead of passing flags on every invocation, persist defaults in your project's
 [tool.docstring_generator]
 strict = true
 threshold = 90
+exclude_files = ["conftest.py", "settings.py"]
+exclude_dirs = ["tests", "migrations"]
 ```
 
 CLI flags always override `pyproject.toml` values. The tool automatically walks up from the target path to find the nearest `pyproject.toml`.
