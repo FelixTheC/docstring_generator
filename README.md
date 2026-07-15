@@ -23,6 +23,9 @@ Good documentation is no longer optional. AI coding assistants, static analysis 
 - ✍️ **Preserving your words** — existing descriptions and custom notes are never overwritten
 - 🧠 **AI-workflow friendly** — well-structured docstrings improve context quality for LLM-assisted development
 - 🚨 **Exception-aware** — automatically detects `raise` statements and documents them in a `Raises` section, so failure modes are part of your API contract
+- 🙈 **Convention-correct** — `self` and `cls` are automatically excluded from generated parameter sections, matching every major docstring standard
+- ⚙️ **Async-ready** — handles both `def` and `async def` functions transparently, no extra configuration needed
+- 🎨 **Style-safe** — detects the existing docstring style and refuses to silently mix conventions; explicit opt-in required to convert styles
 - 🏎️ **Blazing fast** — core engine written in C++ via [pybind11](https://github.com/FelixTheC/docstring_generator_ext)
 
 ---
@@ -106,6 +109,30 @@ gendocs_new mydir/ --exclude-dir tests --exclude-dir migrations
 
 Any file whose path contains one of the given directory names is skipped.
 
+### `--dry-run` — Preview changes without modifying any file
+
+Run the generator in read-only mode and see exactly what would be added or changed as a unified diff:
+
+```shell
+gendocs_new mydir/ --dry-run
+```
+
+Files that already have complete docstrings print `<file>: no changes`. Files with missing docstrings show a `+`/`-` diff so you can review before committing. Combine with `--style` or `--overwrite-style` to preview a style migration:
+
+```shell
+gendocs_new mydir/ --style google --overwrite-style --dry-run
+```
+
+### `--overwrite-style` — Re-format existing docstrings in a different style
+
+Force regeneration of existing docstrings using the specified style, even if they already have content:
+
+```shell
+gendocs_new mydir/ --style google --overwrite-style true
+```
+
+Useful when migrating a codebase from one docstring convention to another.
+
 ---
 
 ## Configuration via `pyproject.toml`
@@ -167,6 +194,37 @@ def foo(val_a: int, val_b: List[int]):
 
 ---
 
+## Preserve Return Description with `>>` Marker
+
+Use `>>` on its own line inside an existing docstring to provide a description for the return value. On the next `gendocs_new` run the marker is consumed and wired into the `Returns` section automatically.
+
+```python
+def square(x: int) -> int:
+    """Square a number.
+
+    >> The squared value of x.
+    """
+    return x * x
+```
+
+After running `gendocs_new` (Google style):
+
+```python
+def square(x: int) -> int:
+    """Square a number.
+
+    Args:
+        x (int):
+    Returns:
+        int: The squared value of x.
+    """
+    return x * x
+```
+
+Combine `$N` for parameter descriptions and `>>` for the return description to fully annotate a function before running the generator — no manual editing of the structured sections needed.
+
+---
+
 ## Automatic `Raises` Extraction
 
 `docstring_generator` statically analyzes your function body for `raise` statements and adds a `Raises` section describing each exception — including the condition that triggers it. This works seamlessly with frameworks like **Pydantic**, **FastAPI**, or any custom validation logic.
@@ -202,7 +260,6 @@ class PluginConfig(BaseModel):
         """
         Parameters
         ----------
-        cls : [Argument]
         values : dict [Argument]
 
         Returns
@@ -304,13 +361,13 @@ Ready-to-run examples are available in the [`examples/`](examples/) directory.
 pip install docstring-generator
 ```
 
-Requires Python 3.10+.
+Requires Python 3.13+.
 
 ---
 
 ## How It Works
 
-The core engine is implemented in C++ and exposed to Python via [pybind11](https://github.com/pybind/pybind11), delivering performance that scales to large codebases without slowing down your workflow.
+The core engine is implemented in C++ (C++20) and exposed to Python via [pybind11](https://github.com/pybind/pybind11), delivering performance that scales to large codebases without slowing down your workflow.
 
 - **Extension:** [docstring-generator-ext](https://github.com/FelixTheC/docstring_generator_ext) — the high-performance backbone of this project
 
@@ -320,15 +377,25 @@ The core engine is implemented in C++ and exposed to Python via [pybind11](https
 
 Planned features and areas of investment:
 
-- [x] Pre-commit hook integration for automatic docstring enforcement
-- [x] Return type documentation generation
-- [x] Raises documentation generation
-- [x] Docstring coverage reporting (`--check`, `--strict`, `--threshold`)
-- [x] `pyproject.toml` configuration support
-- [ ] add `>>` as placeholder for additional return description like `$1`
+### Near-term (high impact, low effort)
+
+- [ ] `--ignore-magic` flag — skip dunder methods (`__init__`, `__str__`, etc.) that are often internal noise; configurable via `pyproject.toml`
+- [ ] Git-aware incremental mode (`--changed-only`) — only process files changed since the last commit or currently staged, using `git diff --name-only`; crucial for large repos
+
+### Medium-term
+
+- [ ] GitHub Action — publish a ready-to-use Action to the Marketplace so teams can enforce docstring coverage in CI without any local installation
+- [ ] Coverage badge generation (`--badge`) — produce an SVG badge from `--check` results to embed in README, similar to a test-coverage badge
+- [ ] JUnit/SARIF output for `--check` — emit machine-readable results for GitHub, GitLab, and Azure DevOps CI panels; enables PR annotations that highlight undocumented functions inline
 - [ ] IDE plugin support (JetBrains, VS Code)
+
+### Longer-term
+
+- [ ] Watch mode (`--watch`) — monitor the project for file saves and regenerate docstrings automatically in the background
+- [ ] Sphinx / mkdocs bridge (`--export-rst`) — generate `.rst` or `.md` stubs ready for Sphinx/mkdocs autodoc pipelines
+- [ ] Custom docstring templates — let teams define their own format via `pyproject.toml` for internal style guides that extend NumPy or Google
+- [ ] LLM-assisted description generation (opt-in enrichment mode) — use a local or remote LLM to fill in meaningful parameter descriptions beyond the type hint
 - [ ] CI/CD pipeline gate (fail build below coverage threshold)
-- [ ] LLM-assisted description generation (opt-in enrichment mode)
 
 Community feedback shapes priorities — open an issue to vote on features or suggest new ones.
 

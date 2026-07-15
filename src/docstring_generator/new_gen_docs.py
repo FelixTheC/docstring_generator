@@ -1,4 +1,7 @@
+import difflib
 import pathlib
+import shutil
+import tempfile
 
 import click
 import docstring_generator_ext
@@ -64,7 +67,12 @@ def load_toml_config(config_path: pathlib.Path | None) -> dict:
 )
 @click.option("--exclude-file", type=str, multiple=True)
 @click.option("--exclude-dir", type=str, multiple=True)
-# @click.option("--overwrite-style", type=bool, default=False)
+@click.option("--overwrite-style", is_flag=True, help="Overwrite existing docstrings.")
+@click.option(
+    "--dry-run",
+    is_flag=True,
+    help="Preview changes as a unified diff without modifying any file.",
+)
 def main(
     paths: tuple[str, ...],
     style: str,
@@ -73,7 +81,8 @@ def main(
     threshold: int | None,
     exclude_file: list[str],
     exclude_dir: list[str],
-    # overwrite_style: bool,
+    overwrite_style: bool,
+    dry_run: bool,
 ) -> None:
     docstring_style = STYLE_MAP[style]
 
@@ -110,14 +119,38 @@ def main(
             )
             for file in files_
         }
-        print_results(checked_files, _strict, _threshold)
+        if print_results(checked_files, _strict, _threshold) != 0:
+            import sys
+            return sys.exit(1)
     else:
         for file in files_:
             if file.name in _exclude_files or any(str(exclude_dir) in str(file) for exclude_dir in _exclude_dirs):
                 continue
             try:
-                docstring_generator_ext.parse_file(file.absolute().as_posix(), docstring_style)
+                if dry_run:
+                    with tempfile.NamedTemporaryFile(suffix=".py", delete=False) as tmp:
+                        tmp_path = pathlib.Path(tmp.name)
+                    shutil.copy2(file, tmp_path)
+                    try:
+                        docstring_generator_ext.parse_file(tmp_path.as_posix(), docstring_style, overwrite_style)
+                        original = file.read_text(encoding="utf-8").splitlines(keepends=True)
+                        modified = tmp_path.read_text(encoding="utf-8").splitlines(keepends=True)
+                        diff = list(difflib.unified_diff(
+                            original, modified,
+                            fromfile=f"a/{file}",
+                            tofile=f"b/{file}",
+                        ))
+                        if diff:
+                            print("".join(diff))
+                        else:
+                            print(f"{file}: no changes")
+                    finally:
+                        tmp_path.unlink(missing_ok=True)
+                else:
+                    docstring_generator_ext.parse_file(file.absolute().as_posix(), docstring_style, overwrite_style)
             except SyntaxError as e:
+                print(f"Error processing file {file}: {e}")
+            except Exception as e:
                 print(f"Error processing file {file}: {e}")
 
 
