@@ -69,7 +69,9 @@ def load_toml_config(config_path: pathlib.Path | None) -> dict:
 @click.option("--exclude-file", type=str, multiple=True)
 @click.option("--exclude-dir", type=str, multiple=True)
 @click.option("--overwrite-style", is_flag=True, help="Overwrite existing docstrings.")
-@click.option("--ignore-magic", is_flag=True, help="Ignore dunder methods like `__init__`, `__str__`, etc.")
+@click.option(
+    "--ignore-magic", is_flag=True, help="Ignore dunder methods like `__init__`, `__str__`, etc."
+)
 @click.option(
     "--dry-run",
     is_flag=True,
@@ -118,15 +120,20 @@ def main(
                 err=True,
             )
             import sys
+
             sys.exit(1)
         try:
             result_unstaged = subprocess.run(
                 ["git", "diff", "--name-only", "HEAD"],
-                capture_output=True, text=True, check=True,
+                capture_output=True,
+                text=True,
+                check=True,
             )
             result_staged = subprocess.run(
                 ["git", "diff", "--cached", "--name-only"],
-                capture_output=True, text=True, check=True,
+                capture_output=True,
+                text=True,
+                check=True,
             )
             raw = result_unstaged.stdout + result_staged.stdout
             changed_files = {
@@ -137,6 +144,7 @@ def main(
         except subprocess.CalledProcessError as e:
             click.echo(f"Error: git command failed: {e.stderr.strip()}", err=True)
             import sys
+
             sys.exit(1)
 
     files_ = []
@@ -165,10 +173,13 @@ def main(
         }
         if print_results(checked_files, _strict, _threshold) != 0:
             import sys
+
             return sys.exit(1)
     else:
         for file in files_:
-            if file.name in _exclude_files or any(str(exclude_dir) in str(file) for exclude_dir in _exclude_dirs):
+            if file.name in _exclude_files or any(
+                str(exclude_dir) in str(file) for exclude_dir in _exclude_dirs
+            ):
                 continue
             try:
                 if dry_run:
@@ -176,14 +187,19 @@ def main(
                         tmp_path = pathlib.Path(tmp.name)
                     shutil.copy2(file, tmp_path)
                     try:
-                        docstring_generator_ext.parse_file(tmp_path.as_posix(), docstring_style, overwrite_style)
+                        docstring_generator_ext.parse_file(
+                            tmp_path.as_posix(), docstring_style, overwrite_style
+                        )
                         original = file.read_text(encoding="utf-8").splitlines(keepends=True)
                         modified = tmp_path.read_text(encoding="utf-8").splitlines(keepends=True)
-                        diff = list(difflib.unified_diff(
-                            original, modified,
-                            fromfile=f"a/{file}",
-                            tofile=f"b/{file}",
-                        ))
+                        diff = list(
+                            difflib.unified_diff(
+                                original,
+                                modified,
+                                fromfile=f"a/{file}",
+                                tofile=f"b/{file}",
+                            )
+                        )
                         if diff:
                             print("".join(diff))
                         else:
@@ -191,7 +207,9 @@ def main(
                     finally:
                         tmp_path.unlink(missing_ok=True)
                 else:
-                    docstring_generator_ext.parse_file(file.absolute().as_posix(), docstring_style, overwrite_style)
+                    docstring_generator_ext.parse_file(
+                        file.absolute().as_posix(), docstring_style, overwrite_style
+                    )
             except SyntaxError as e:
                 print(f"Error processing file {file}: {e}")
             except Exception as e:
