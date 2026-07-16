@@ -79,6 +79,7 @@ def print_results(
                 return 0
     return 0
 
+
 def export_json(all_results: dict[str, dict], strict: bool = False, threshold: float | None = None):
     data = {}
 
@@ -128,5 +129,6 @@ def export_json(all_results: dict[str, dict], strict: bool = False, threshold: f
     }
 
     import json
-    with Path(Path.cwd(), "gendocs_check_output.json").open('w') as output_file:
+
+    with Path(Path.cwd(), "gendocs_check_output.json").open("w") as output_file:
         json.dump(result, output_file, indent=4)
