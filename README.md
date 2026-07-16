@@ -123,6 +123,37 @@ Files that already have complete docstrings print `<file>: no changes`. Files wi
 gendocs_new mydir/ --style google --overwrite-style --dry-run
 ```
 
+### `--changed-only` — Only process git-changed files
+
+Restrict processing to files that are modified or staged in git — perfect for large repos where running on the full `src/` directory on every commit would be slow:
+
+```shell
+gendocs_new mydir/ --changed-only
+```
+
+Internally runs `git diff --name-only HEAD` and `git diff --cached --name-only` to collect the list of changed and staged `.py` files, then intersects that list with the paths you provided. If git is not installed or not available on `PATH`, the command aborts immediately with a clear error message rather than silently processing everything.
+
+Combines well with `--dry-run` to preview what *would* change for only the files you touched:
+
+```shell
+gendocs_new mydir/ --changed-only --dry-run
+```
+
+### `--ignore-magic` — Skip dunder / magic methods
+
+Exclude dunder methods such as `__init__`, `__str__`, `__repr__`, `__eq__`, etc. from docstring generation. These are often implementation details that add noise rather than value to public documentation:
+
+```shell
+gendocs_new mydir/ --ignore-magic
+```
+
+Can also be enabled permanently via `pyproject.toml` so every invocation skips magic methods without an explicit flag:
+
+```toml
+[tool.docstring_generator]
+ignore_magic = true
+```
+
 ### `--overwrite-style` — Re-format existing docstrings in a different style
 
 Force regeneration of existing docstrings using the specified style, even if they already have content:
@@ -145,6 +176,7 @@ strict = true
 threshold = 90
 exclude_files = ["conftest.py", "settings.py"]
 exclude_dirs = ["tests", "migrations"]
+ignore_magic = true
 ```
 
 CLI flags always override `pyproject.toml` values. The tool automatically walks up from the target path to find the nearest `pyproject.toml`.
@@ -376,11 +408,6 @@ The core engine is implemented in C++ (C++20) and exposed to Python via [pybind1
 ## Roadmap
 
 Planned features and areas of investment:
-
-### Near-term (high impact, low effort)
-
-- [ ] `--ignore-magic` flag — skip dunder methods (`__init__`, `__str__`, etc.) that are often internal noise; configurable via `pyproject.toml`
-- [ ] Git-aware incremental mode (`--changed-only`) — only process files changed since the last commit or currently staged, using `git diff --name-only`; crucial for large repos
 
 ### Medium-term
 

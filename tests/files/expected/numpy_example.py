@@ -201,8 +201,6 @@ def raise_runtime_error(flag: bool) -> None:
 
 def raise_not_implemented() -> None:
     """
-    Parameters
-    ----------
 
     Returns
     -------
@@ -278,8 +276,6 @@ def raise_overflow_error(exponent: int) -> int:
 
 def raise_stop_iteration() -> None:
     """
-    Parameters
-    ----------
 
     Returns
     -------
@@ -637,8 +633,6 @@ class InventoryBatch:
 
     def __str__(self) -> str:
         """
-        Parameters
-        ----------
 
         Returns
         -------
@@ -648,8 +642,6 @@ class InventoryBatch:
 
     def __repr__(self) -> str:
         """
-        Parameters
-        ----------
 
         Returns
         -------
@@ -659,8 +651,6 @@ class InventoryBatch:
 
     def __len__(self) -> int:
         """
-        Parameters
-        ----------
 
         Returns
         -------
@@ -670,8 +660,6 @@ class InventoryBatch:
 
     def __iter__(self) -> Generator[str, None, None]:
         """
-        Parameters
-        ----------
 
         Returns
         -------

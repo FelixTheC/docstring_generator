@@ -1,6 +1,7 @@
 import difflib
 import pathlib
 import shutil
+import subprocess
 import tempfile
 
 import click
@@ -68,10 +69,16 @@ def load_toml_config(config_path: pathlib.Path | None) -> dict:
 @click.option("--exclude-file", type=str, multiple=True)
 @click.option("--exclude-dir", type=str, multiple=True)
 @click.option("--overwrite-style", is_flag=True, help="Overwrite existing docstrings.")
+@click.option("--ignore-magic", is_flag=True, help="Ignore dunder methods like `__init__`, `__str__`, etc.")
 @click.option(
     "--dry-run",
     is_flag=True,
     help="Preview changes as a unified diff without modifying any file.",
+)
+@click.option(
+    "--changed-only",
+    is_flag=True,
+    help="Only process files changed or staged in git. Aborts if git is not available.",
 )
 def main(
     paths: tuple[str, ...],
@@ -83,6 +90,8 @@ def main(
     exclude_dir: list[str],
     overwrite_style: bool,
     dry_run: bool,
+    ignore_magic: bool,
+    changed_only: bool,
 ) -> None:
     docstring_style = STYLE_MAP[style]
 
@@ -91,12 +100,44 @@ def main(
     _threshold = threshold or config.get("threshold", 100)
     _exclude_files = config.get("exclude_files", [])
     _exclude_dirs = config.get("exclude_dirs", [])
+    _ignore_magic = config.get("ignore_magic", [])
 
     # CLI args always wins
     if exclude_file:
         _exclude_files = exclude_file
     if exclude_dir:
         _exclude_dirs = exclude_dir
+    if ignore_magic:
+        _ignore_magic = ignore_magic
+
+    changed_files: set[str] | None = None
+    if changed_only:
+        if not shutil.which("git"):
+            click.echo(
+                "Error: --changed-only requires git, but git was not found on PATH. Aborting.",
+                err=True,
+            )
+            import sys
+            sys.exit(1)
+        try:
+            result_unstaged = subprocess.run(
+                ["git", "diff", "--name-only", "HEAD"],
+                capture_output=True, text=True, check=True,
+            )
+            result_staged = subprocess.run(
+                ["git", "diff", "--cached", "--name-only"],
+                capture_output=True, text=True, check=True,
+            )
+            raw = result_unstaged.stdout + result_staged.stdout
+            changed_files = {
+                str(pathlib.Path(line.strip()).absolute())
+                for line in raw.splitlines()
+                if line.strip().endswith(".py")
+            }
+        except subprocess.CalledProcessError as e:
+            click.echo(f"Error: git command failed: {e.stderr.strip()}", err=True)
+            import sys
+            sys.exit(1)
 
     files_ = []
 
@@ -111,6 +152,9 @@ def main(
 
         if path_.is_file() and path_.name.endswith(".py"):
             files_.append(path_)
+
+    if changed_files is not None:
+        files_ = [f for f in files_ if str(f.absolute()) in changed_files]
 
     if check:
         checked_files = {
