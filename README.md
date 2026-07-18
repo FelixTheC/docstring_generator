@@ -366,6 +366,57 @@ hooks:
 
 ---
 
+## IDE Integration
+
+### VS Code Extension
+
+Install the [docstring-generator VS Code extension](https://marketplace.visualstudio.com/items?itemName=felixthec.docstring-generator-vscode) from the marketplace to generate docstrings directly from the editor — no terminal required.
+
+**Features:**
+- Right-click any `.py` file → **Generate Docstrings**
+- Keyboard shortcut: `Ctrl+Shift+D` (Windows/Linux) / `Cmd+Shift+D` (macOS)
+- Configurable style (`numpy`, `google`, `rest`) via VS Code settings
+
+**Setup:**
+1. Install from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=felixthec.docstring-generator-vscode)
+2. Make sure `gendocs_new` is on your `PATH` (install `docstring-generator` via pip)
+3. Optionally configure the style in your VS Code settings:
+   ```json
+   {
+     "docstringGenerator.style": "google"
+   }
+   ```
+
+### JetBrains IDEs (PyCharm, IntelliJ + Python plugin)
+
+Use the provided **File Watcher** configuration to automatically generate docstrings every time you save a `.py` file.
+
+**Setup:**
+1. Copy [`gendocs_file_watchers.xml`](gendocs_file_watchers.xml) from the repository root into your project's `.idea/watcherTasks.xml` — or import it via **Settings → Tools → File Watchers → Import**.
+2. The watcher is pre-configured to:
+   - Run on every `.py` file in the project scope
+   - Use `$PROJECT_DIR$/.venv/bin/gendocs_new` as the executable (adjust the path if your venv lives elsewhere)
+   - Pass `--style numpy $FilePath$` by default — change `numpy` to `google` or `rest` as needed
+   - Write the result back to the same file (`$FilePath$`)
+
+```xml
+<TaskOptions>
+  <TaskOptions>
+    <option name="arguments" value="--style numpy $FilePath$" />
+    <option name="fileExtension" value="py" />
+    <option name="name" value="gendocs_new" />
+    <option name="output" value="$FilePath$" />
+    <option name="program" value="$PROJECT_DIR$/.venv/bin/gendocs_new" />
+    <option name="scopeName" value="Project Files" />
+    <option name="workingDir" value="$FileDir$" />
+  </TaskOptions>
+</TaskOptions>
+```
+
+> **Tip:** Combine the File Watcher with `--ignore-magic` or `pyproject.toml` configuration to tailor which methods are documented automatically on save.
+
+---
+
 ## FAQ
 
 ### What happens if I re-run docstring generation?
@@ -412,10 +463,11 @@ Planned features and areas of investment:
 
 ### Medium-term
 
+- [x] File Watcher configuration for JetBrains IDEs (PyCharm) — import `gendocs_file_watchers.xml` to auto-generate docstrings on every file save
+- [x] VS Code extension — available on the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=felixthec.docstring-generator-vscode)
 - [ ] GitHub Action — publish a ready-to-use Action to the Marketplace so teams can enforce docstring coverage in CI without any local installation
 - [ ] Coverage badge generation (`--badge`) — produce an SVG badge from `--check` results to embed in README, similar to a test-coverage badge
 - [ ] JUnit/SARIF output for `--check` — emit machine-readable results for GitHub, GitLab, and Azure DevOps CI panels; enables PR annotations that highlight undocumented functions inline
-- [ ] IDE plugin support (JetBrains, VS Code)
 
 ### Longer-term
 
