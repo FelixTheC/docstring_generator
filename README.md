@@ -4,6 +4,8 @@
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
 [![](https://img.shields.io/pypi/dm/docstring-generator.svg)](https://pypi.org/project/docstring-generator/)
+[![VS Code Extension](https://img.shields.io/badge/VS%20Code-Extension-007ACC?logo=visualstudiocode&logoColor=white)](https://marketplace.visualstudio.com/items?itemName=felixthec.docstring-generator-vscode)
+[![JetBrains File Watcher](https://img.shields.io/badge/JetBrains-File%20Watcher-000000?logo=jetbrains&logoColor=white)](gendocs_file_watchers.xml)
 
 # docstring_generator
 
@@ -45,6 +47,8 @@ gendocs_new mydir/         # entire directory
 ```
 
 That's it. Your functions now have properly formatted docstrings.
+
+> 💡 **Prefer working inside your editor?** Skip the terminal entirely — install the [VS Code extension](https://marketplace.visualstudio.com/items?itemName=felixthec.docstring-generator-vscode) or import the [JetBrains File Watcher](#jetbrains-ides-pycharm-intellij--python-plugin) to generate docstrings automatically every time you save a `.py` file. → [Jump to IDE Integration](#ide-integration)
 
 ---
 
