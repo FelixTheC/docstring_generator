@@ -27,6 +27,7 @@ export async function activate(context: vscode.ExtensionContext) {
         }
 
         const style = vscode.workspace.getConfiguration('docstringGenerator').get('style', 'numpy');
+        const ignoremagic = vscode.workspace.getConfiguration('docstringGenerator').get('ignoremagic', true);
         const activeWorkspaceFolder = vscode.workspace.workspaceFolders?.[0];
 
         try {
@@ -53,7 +54,11 @@ const environment = await pythonApi.environments.resolveEnvironment(
                 }
             }
 
-            execSync(`"${toolCmd}" --style ${style} "${file}"`);
+            if (ignoremagic) {
+                execSync(`"${toolCmd}" --style ${style} --ignore-magic "${file}"`);
+            } else {
+                execSync(`"${toolCmd}" --style ${style} "${file}"`);
+            }
 
             // Reload the file so the editor shows the new docstrings
             await vscode.commands.executeCommand('workbench.action.files.revert');

@@ -3,7 +3,7 @@
   "displayName": "docstring-generator-vscode",
   "description": "Auto-generate docstrings from type hints using docstring-generator",
   "publisher": "FelixTheC",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "engines": {
     "vscode": "^1.125.0"
   },
@@ -40,6 +40,10 @@
             "rest"
           ],
           "default": "numpy"
+        },
+        "docstringGenerator.ignoremagic": {
+          "type": "boolean",
+          "default": true
         }
       }
     },

@@ -47,6 +47,7 @@ This extension contributes the following settings:
 
 * `docstringGenerator.enable`: Enable/disable this extension.
 * `docstringGenerator.style`: Set to the style of docstring to generate. [`numpy`, `google`, `rest`]
+* `docstringGenerator.ignoremagic`: Ignore magic commands in docstring generation. (default: `true`)
 
 
 ## Release Notes
@@ -58,6 +59,8 @@ Users appreciate release notes as you update your extension.
 - Automated file parsing and formatting support via docstring-generator CLI.
 - Context-aware Python environment resolution.
 
+### 1.0.1
+- Added support for ignoring magic commands in docstring generation. (The flag was missing from the configuration settings.)
 
 ### 💡 Key Improvements Made:
 * **Prerequisites Clarified:** Explicitly listed the **Microsoft Python Extension** as a prerequisite. This saves you from getting GitHub issues or 1-star reviews from users wondering why it isn't picking up their specific virtual environment paths.
