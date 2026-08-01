@@ -8,12 +8,17 @@ authors = [
 readme = "README.md"
 requires-python = ">=3.13"
 
+# License metadata
+license = { text = "Apache-2.0" }
+license-expression = "Apache-2.0"
+
 classifiers=[
     "Environment :: Console",
     "Programming Language :: Python :: 3",
     "Topic :: Utilities",
     "Topic :: Software Development :: Documentation",
     "Typing :: Typed",
+    "License :: OSI Approved :: Apache Software License",
 ]
 
 dependencies = [
