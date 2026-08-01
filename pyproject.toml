@@ -62,3 +62,10 @@ exclude = ["tests"]
 
 [project.scripts]
 gendocs_new = "docstring_generator.new_gen_docs:main"
+
+# Ensure non-code files like NOTICE are included in sdist/wheel
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.data-files]
+"doc" = ["NOTICE"]
