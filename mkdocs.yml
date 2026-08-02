@@ -1,0 +1,54 @@
+site_name: docstring_generator
+site_description: Auto generate docstrings from type-hints.
+site_author: FelixTheC
+site_url: https://felixthec.github.io/docstring_generator/
+repo_url: https://github.com/FelixTheC/docstring_generator
+repo_name: FelixTheC/docstring_generator
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.highlight
+    - search.suggest
+    - content.code.copy
+
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Installation: installation.md
+  - CLI Options: options.md
+  - Configuration: configuration.md
+  - Features: features.md
+  - Pre-commit: pre-commit.md
+  - IDE Integration: ide-integration.md
+  - Plugin Guide: plugin-guide.md
+  - FAQ: faq.md
+  - Roadmap: roadmap.md
