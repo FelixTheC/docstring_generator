@@ -21,7 +21,7 @@ def find_pyproject_toml(start_paths: tuple[str, ...]) -> pathlib.Path | None:
     """
     Walks up parent directories from the target files/directories
     to discover the project root's pyproject.toml.
-    
+
     Parameters
     ----------
     start_paths : tuple[str, Ellipsis] [Argument]
