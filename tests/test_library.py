@@ -117,7 +117,7 @@ def test_check_coverage_full_coverage_with_ignore_magic(test_file):
     ----------
     test_file : [Argument]
     """
-    from src.docstring_generator.new_gen_docs import main
+    from docstring_generator.new_gen_docs import main
     main(["--check", "--ignore-magic", "--threshold", "95", str(test_file)], standalone_mode=False)
 
     with Path(Path.cwd(), "gendocs_check_output.json").open('r') as output_file:
