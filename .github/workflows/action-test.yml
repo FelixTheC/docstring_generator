@@ -1,0 +1,36 @@
+name: action-test.yml
+on: [ push, pull_request ]
+
+jobs:
+  stage_one:
+    runs-on: ubuntu-latest
+    env:
+      CC: clang-18
+      CXX: clang++-18
+      CXXFLAGS: "-stdlib=libc++ -std=c++20"
+    steps:
+      - uses: actions/checkout@v4
+      - name: docstring-format action numpy
+        uses: ./action/action.yml
+        with:
+          path: src/
+          style: 'numpy'
+          threshold: '0'
+          ignore-magic: 'true'
+
+  stage_two:
+    runs-on: ubuntu-latest
+    env:
+      CC: clang-18
+      CXX: clang++-18
+      CXXFLAGS: "-stdlib=libc++ -std=c++20"
+    steps:
+      - name: docstring-format google
+        uses: ./action/action.yml
+        with:
+          path: src/
+          style: 'google'
+          threshold: '90'
+          strict: 'true'
+          ignore-magic: 'true'
+

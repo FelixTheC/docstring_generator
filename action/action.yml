@@ -1,0 +1,55 @@
+name: 'Docstring Coverage Check'
+description: 'Enforce docstring coverage using docstring-generator'
+author: 'FelixTheC'
+branding:
+  icon: 'book-open'
+  color: 'green'
+
+inputs:
+  path:
+    description: 'File or directory to check'
+    required: true
+    default: 'src/'
+  style:
+    description: 'Docstring style (numpy|google|rest)'
+    default: 'numpy'
+  threshold:
+    description: 'Minimum coverage % (0-100)'
+    default: '80'
+  strict:
+    description: 'Treat partial docstrings as missing'
+    default: 'false'
+  exclude-file:
+    description: 'Comma-separated file names to skip'
+    default: ''
+  exclude-dir:
+    description: 'Comma-separated directory names to skip'
+    default: ''
+  ignore-magic:
+    description: 'Skip dunder/magic methods'
+    default: 'false'
+
+runs:
+  using: 'composite'
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.14'
+    - name: Install docstring-generator
+      shell: bash
+      run: pip install docstring-generator
+      env:
+        CC: clang-18
+        CXX: clang++-18
+        CXXFLAGS: "-stdlib=libc++ -std=c++20"
+    - name: Run coverage check
+      shell: bash
+      run: action/entrypoint.sh
+      env:
+        INPUT_PATH: ${{ inputs.path }}
+        INPUT_STYLE: ${{ inputs.style }}
+        INPUT_THRESHOLD: ${{ inputs.threshold }}
+        INPUT_STRICT: ${{ inputs.strict }}
+        INPUT_EXCLUDE_FILE: ${{ inputs.exclude-file }}
+        INPUT_EXCLUDE_DIR: ${{ inputs.exclude-dir }}
+        INPUT_IGNORE_MAGIC: ${{ inputs.ignore-magic
