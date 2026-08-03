@@ -17,6 +17,11 @@ EXPECTED_FILES = {
 
 @pytest.mark.parametrize("style", ("numpy", "rest", "google"))
 def test_docstring_creation(style):
+    """
+    Parameters
+    ----------
+    style : [Argument]
+    """
     with NamedTemporaryFile(suffix=".py", delete=False) as tmp_file:
         tmp_path = Path(tmp_file.name)
         tmp_file.write(BASE_EXAMPLE_FILE.read_bytes())
@@ -60,6 +65,11 @@ def test_check_coverage_no_coverage():
 
 @pytest.mark.parametrize("test_file", EXPECTED_FILES.values())
 def test_check_coverage_full_coverage(test_file):
+    """
+    Parameters
+    ----------
+    test_file : [Argument]
+    """
     gendocs_new = Path(sys.executable).parent / "gendocs_new"
     result = subprocess.run(
         [str(gendocs_new), "--check", "--threshold", "95", str(test_file)],
@@ -79,6 +89,11 @@ def test_check_coverage_full_coverage(test_file):
 @pytest.mark.parametrize("test_file", EXPECTED_FILES.values())
 @pytest.mark.xfail
 def test_check_coverage_full_coverage_with_strict(test_file):
+    """
+    Parameters
+    ----------
+    test_file : [Argument]
+    """
     gendocs_new = Path(sys.executable).parent / "gendocs_new"
     result = subprocess.run(
         [str(gendocs_new), "--check", "--threshold", "95", "--strict", str(test_file)],
@@ -94,12 +109,29 @@ def test_check_coverage_full_coverage_with_strict(test_file):
 
     assert check_result["passing"]
 
+
+@pytest.mark.parametrize("test_file", EXPECTED_FILES.values())
+def test_check_coverage_full_coverage_with_ignore_magic(test_file):
+    """
+    Parameters
+    ----------
+    test_file : [Argument]
+    """
+    from src.docstring_generator.new_gen_docs import main
+    main(["--check", "--ignore-magic", "--threshold", "95", str(test_file)], standalone_mode=False)
+
+    with Path(Path.cwd(), "gendocs_check_output.json").open('r') as output_file:
+        import json
+        check_result = json.load(output_file)
+
+    assert check_result["passing"]
+
+
 # ---------------------------------------------------------------------------
 # --dry-run tests
 # ---------------------------------------------------------------------------
 
 def test_dry_run_shows_diff_and_does_not_modify_file():
-    """--dry-run must print a unified diff but leave the original file unchanged."""
     gendocs_new = Path(sys.executable).parent / "gendocs_new"
 
     with NamedTemporaryFile(suffix=".py", delete=False) as tmp_file:
@@ -131,7 +163,6 @@ def test_dry_run_shows_diff_and_does_not_modify_file():
 
 
 def test_dry_run_reports_no_changes_for_fully_documented_file():
-    """--dry-run should report 'no changes' for a file whose docstrings are already complete."""
     gendocs_new = Path(sys.executable).parent / "gendocs_new"
     # Use a hand-crafted, minimal fixture that is genuinely idempotent (no raises → no edge cases)
     idempotent_file = Path(__file__).parent / "files" / "idempotent_example.py"
@@ -153,7 +184,6 @@ def test_dry_run_reports_no_changes_for_fully_documented_file():
 # ---------------------------------------------------------------------------
 
 def test_changed_only_aborts_when_git_not_found():
-    """--changed-only must exit with a non-zero code when git is not on PATH."""
     gendocs_new = Path(sys.executable).parent / "gendocs_new"
 
     with NamedTemporaryFile(suffix=".py", delete=False) as tmp_file:
@@ -183,7 +213,6 @@ def test_changed_only_aborts_when_git_not_found():
 
 
 def test_changed_only_processes_only_changed_files():
-    """--changed-only must skip files that are not tracked as modified in git."""
     gendocs_new = Path(sys.executable).parent / "gendocs_new"
 
     with TemporaryDirectory() as tmp_dir:
@@ -243,7 +272,6 @@ def test_changed_only_processes_only_changed_files():
 # ---------------------------------------------------------------------------
 
 def test_changed_only_combined_with_dry_run():
-    """--changed-only --dry-run must show a diff only for changed files and not modify any file."""
     gendocs_new = Path(sys.executable).parent / "gendocs_new"
 
     with TemporaryDirectory() as tmp_dir:

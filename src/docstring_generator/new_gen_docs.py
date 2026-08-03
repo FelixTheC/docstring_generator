@@ -21,6 +21,14 @@ def find_pyproject_toml(start_paths: tuple[str, ...]) -> pathlib.Path | None:
     """
     Walks up parent directories from the target files/directories
     to discover the project root's pyproject.toml.
+    
+    Parameters
+    ----------
+    start_paths : tuple[str, Ellipsis] [Argument]
+
+    Returns
+    -------
+    Union[pathlib.Path, None]
     """
     # Fallback to current working directory if no paths passed
     base_path = (
@@ -39,7 +47,15 @@ def find_pyproject_toml(start_paths: tuple[str, ...]) -> pathlib.Path | None:
 
 
 def load_toml_config(config_path: pathlib.Path | None) -> dict:
-    """Finds and parses configuration options from pyproject.toml."""
+    """Finds and parses configuration options from pyproject.toml.
+    Parameters
+    ----------
+    config_path : Union[pathlib.Path, None] [Argument]
+
+    Returns
+    -------
+    dict
+    """
     if not config_path or not config_path.exists():
         return {}
 
@@ -95,6 +111,25 @@ def main(
     ignore_magic: bool,
     changed_only: bool,
 ) -> None:
+    """
+    Parameters
+    ----------
+    paths : tuple[str, Ellipsis] [Argument]
+    style : str [Argument]
+    check : bool [Argument]
+    strict : bool [Argument]
+    threshold : Union[int, None] [Argument]
+    exclude_file : list[str] [Argument]
+    exclude_dir : list[str] [Argument]
+    overwrite_style : bool [Argument]
+    dry_run : bool [Argument]
+    ignore_magic : bool [Argument]
+    changed_only : bool [Argument]
+
+    Returns
+    -------
+    None
+    """
     docstring_style = STYLE_MAP[style]
 
     config = load_toml_config(find_pyproject_toml(paths))
@@ -167,7 +202,7 @@ def main(
     if check:
         checked_files = {
             file.absolute().as_posix(): docstring_generator_ext.check_docstring(
-                file.absolute().as_posix()
+                file.absolute().as_posix(), ignore_magic
             )
             for file in files_
         }
