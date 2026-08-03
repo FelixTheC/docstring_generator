@@ -202,7 +202,7 @@ def main(
     if check:
         checked_files = {
             file.absolute().as_posix(): docstring_generator_ext.check_docstring(
-                file.absolute().as_posix(), ignore_magic
+                file.absolute().as_posix(), _ignore_magic
             )
             for file in files_
         }
