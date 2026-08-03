@@ -30,7 +30,7 @@ dev = [
     "pytest>=9.1.1",
     "pytest-cov>=7.1.0",
     "ruff==0.15.21",
-    "fastapi==0.139.0",
+    "fastapi==0.140.0",
     "sqlalchemy==2.0.51"
 ]
 
