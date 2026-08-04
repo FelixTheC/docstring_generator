@@ -137,7 +137,7 @@ def main(
     _threshold = threshold or config.get("threshold", 100)
     _exclude_files = config.get("exclude_files", [])
     _exclude_dirs = config.get("exclude_dirs", [])
-    _ignore_magic = config.get("ignore_magic", [])
+    _ignore_magic = config.get("ignore_magic", False)
 
     # CLI args always wins
     if exclude_file:
