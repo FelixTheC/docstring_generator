@@ -7,6 +7,7 @@
 [![VS Code Extension](https://img.shields.io/badge/VS%20Code-Extension-007ACC?logo=visualstudiocode&logoColor=white)](https://marketplace.visualstudio.com/items?itemName=felixthec.docstring-generator-vscode)
 [![JetBrains File Watcher](https://img.shields.io/badge/JetBrains-File%20Watcher-000000?logo=jetbrains&logoColor=white)](gendocs_file_watchers.xml)
 
+
 # docstring_generator
 
 > **Stop writing boilerplate docstrings by hand.** `docstring_generator` reads your type hints and generates professional, standards-compliant documentation in seconds — keeping your codebase clean, consistent, and AI-ready.
@@ -14,6 +15,8 @@
 Python documentation tooling that automatically generates docstrings for functions and class methods from their type hints, with full support for **NumPy**, **Google**, and **reStructuredText** styles.
 
 ---
+
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-Donate-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/FEisenmenger)
 
 ## Why docstring_generator?
 

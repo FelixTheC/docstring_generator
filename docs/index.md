@@ -60,3 +60,7 @@ The core engine is implemented in C++ (C++20) and exposed to Python via [pybind1
 ## License
 
 Apache-2.0 — free to use in personal and commercial projects.
+
+---
+
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-Donate-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/FEisenmenger)
