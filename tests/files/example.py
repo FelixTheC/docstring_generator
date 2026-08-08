@@ -60,6 +60,14 @@ class RetryableError(AppError):
         super().__init__(f"Transient failure: {reason} (retry after {retry_after}s)")
 
 
+def empty_args_no_docstring():
+    return None
+
+
+def empty_args_with_docstring():
+    """This function does nothing."""
+    return None
+
 # =====================================================================
 # PART 1: Raising built-in exceptions – every common mechanism
 # =====================================================================
@@ -79,13 +87,13 @@ def raise_type_error(value) -> str:
     return value.upper()
 
 
-def raise_index_error(data: list, index: int):
+def raise_index_error(data: list, *, index: int):
     if index >= len(data) or index < -len(data):
         raise IndexError(f"Index {index} is out of range for list of length {len(data)}")
     return data[index]
 
 
-def raise_key_error(mapping: dict, key: str):
+def raise_key_error(mapping: dict, key: str, /):
     if key not in mapping:
         raise KeyError(key)
     return mapping[key]
@@ -211,7 +219,6 @@ def greet_user(name: str, greeting: str = "Hello", uppercase: bool = False) -> s
     """
     Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
     sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
-
     $1 Lorem ipsum dolor sit amet
     $3 nonumy eirmod tempor invidun
     """
@@ -275,7 +282,6 @@ class InventoryBatch:
         """
         Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
         sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
-
         $1 Lorem ipsum dolor sit amet
         """
         if not item_name.strip():
@@ -373,7 +379,6 @@ async def update_exercise(
     """
     Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
     sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
-
     $1 Lorem ipsum dolor sit amet
     $2 nonumy eirmod tempor invidun
     """
@@ -425,7 +430,6 @@ async def update_training_plan(
     """
     Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
     sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
-
     $1 Lorem ipsum dolor sit amet
     """
     if not user.is_superuser:

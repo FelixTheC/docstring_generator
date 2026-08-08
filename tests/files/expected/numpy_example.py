@@ -33,12 +33,13 @@ class ValidationError(AppError):
         """
         Parameters
         ----------
-        field : str [Argument]
-        message : str [Argument]
+        field : str
+        message : str
 
         Returns
         -------
         None
+
         """
         self.field = field
         super().__init__(f"[{field}] {message}")
@@ -51,12 +52,13 @@ class NotFoundError(AppError):
         """
         Parameters
         ----------
-        resource : str [Argument]
-        identifier : [Argument]
+        resource : str
+        identifier : Any
 
         Returns
         -------
         None
+
         """
         self.resource = resource
         self.identifier = identifier
@@ -70,12 +72,13 @@ class PermissionDeniedError(AppError):
         """
         Parameters
         ----------
-        action : str [Argument]
-        user : str [Argument]
+        action : str
+        user : str
 
         Returns
         -------
         None
+
         """
         self.action = action
         self.user = user
@@ -89,16 +92,26 @@ class RetryableError(AppError):
         """
         Parameters
         ----------
-        reason : str [Argument]
-        retry_after : float, optional, default: 1.0 [Argument]
+        reason : str
+        retry_after : float, optional
+            default: 1.0
 
         Returns
         -------
         None
+
         """
         self.retry_after = retry_after
         super().__init__(f"Transient failure: {reason} (retry after {retry_after}s)")
 
+
+def empty_args_no_docstring():
+    return None
+
+
+def empty_args_with_docstring():
+    """This function does nothing."""
+    return None
 
 # =====================================================================
 # PART 1: Raising built-in exceptions – every common mechanism
@@ -110,14 +123,14 @@ def raise_value_error(value: int) -> int:
     
     Parameters
     ----------
-    value : int [Argument]
+    value : int
 
     Returns
     -------
     int
 
     Raises
-    -------
+    ------
     ValueError
         If value < 0
     """
@@ -130,14 +143,14 @@ def raise_type_error(value) -> str:
     """
     Parameters
     ----------
-    value : [Argument]
+    value : Any
 
     Returns
     -------
     str
 
     Raises
-    -------
+    ------
     TypeError
         If not isinstance(value, str)
     """
@@ -146,15 +159,16 @@ def raise_type_error(value) -> str:
     return value.upper()
 
 
-def raise_index_error(data: list, index: int):
+def raise_index_error(data: list, *, index: int):
     """
     Parameters
     ----------
-    data : list [Argument]
-    index : int [Argument]
+    data : list
+    index : int
+        Keyword only argument
 
     Raises
-    -------
+    ------
     IndexError
         If index >= len(data) or index < -len(data)
     """
@@ -163,15 +177,17 @@ def raise_index_error(data: list, index: int):
     return data[index]
 
 
-def raise_key_error(mapping: dict, key: str):
+def raise_key_error(mapping: dict, key: str, /):
     """
     Parameters
     ----------
-    mapping : dict [Argument]
-    key : str [Argument]
+    mapping : dict
+        Positional only argument
+    key : str
+        Positional only argument
 
     Raises
-    -------
+    ------
     KeyError
         If key not in mapping
     """
@@ -184,14 +200,14 @@ def raise_runtime_error(flag: bool) -> None:
     """
     Parameters
     ----------
-    flag : bool [Argument]
+    flag : bool
 
     Returns
     -------
     None
 
     Raises
-    -------
+    ------
     RuntimeError
         If flag
     """
@@ -201,13 +217,12 @@ def raise_runtime_error(flag: bool) -> None:
 
 def raise_not_implemented() -> None:
     """
-
     Returns
     -------
     None
 
     Raises
-    -------
+    ------
     NotImplementedError
         If a certain condition is met.
     """
@@ -218,14 +233,14 @@ def raise_attribute_error(obj) -> None:
     """
     Parameters
     ----------
-    obj : [Argument]
+    obj : Any
 
     Returns
     -------
     None
 
     Raises
-    -------
+    ------
     AttributeError
         If not hasattr(obj, 'name')
     """
@@ -237,14 +252,14 @@ def raise_zero_division_error(divisor: float) -> float:
     """
     Parameters
     ----------
-    divisor : float [Argument]
+    divisor : float
 
     Returns
     -------
     float
 
     Raises
-    -------
+    ------
     ZeroDivisionError
         If divisor == 0
     """
@@ -257,14 +272,14 @@ def raise_overflow_error(exponent: int) -> int:
     """
     Parameters
     ----------
-    exponent : int [Argument]
+    exponent : int
 
     Returns
     -------
     int
 
     Raises
-    -------
+    ------
     OverflowError
         If result > 2 ** 63 - 1
     """
@@ -276,13 +291,12 @@ def raise_overflow_error(exponent: int) -> int:
 
 def raise_stop_iteration() -> None:
     """
-
     Returns
     -------
     None
 
     Raises
-    -------
+    ------
     StopIteration
         If a certain condition is met.
     """
@@ -297,11 +311,11 @@ def reraise_with_context(data: dict, key: str):
     """
     Parameters
     ----------
-    data : dict [Argument]
-    key : str [Argument]
+    data : dict
+    key : str
 
     Raises
-    -------
+    ------
     NotFoundError
         Re-Raised from KeyError
     """
@@ -315,11 +329,11 @@ def suppress_and_raise_new(items: list, index: int):
     """
     Parameters
     ----------
-    items : list [Argument]
-    index : int [Argument]
+    items : list
+    index : int
 
     Raises
-    -------
+    ------
     ValidationError
         Re-Raised from IndexError
     """
@@ -333,14 +347,14 @@ def reraise_bare(value: int) -> int:
     """
     Parameters
     ----------
-    value : int [Argument]
+    value : int
 
     Returns
     -------
     int
 
     Raises
-    -------
+    ------
     ValueError
         Re-raising this handled exception
     """
@@ -359,14 +373,14 @@ def generator_with_exception(limit: int) -> Generator[int, None, None]:
     """
     Parameters
     ----------
-    limit : int [Argument]
+    limit : int
 
     Returns
     -------
-    Generator[int, None, None]
+    Generator[int | None | None]
 
     Raises
-    -------
+    ------
     ValueError
         If limit < 0
     """
@@ -380,10 +394,10 @@ def context_manager_raise(path: str):
     """
     Parameters
     ----------
-    path : str [Argument]
+    path : str
 
     Raises
-    -------
+    ------
     FileNotFoundError
         If not path
     """
@@ -401,14 +415,14 @@ def validate_age(age: int) -> int:
     """
     Parameters
     ----------
-    age : int [Argument]
+    age : int
 
     Returns
     -------
     int
 
     Raises
-    -------
+    ------
     ValidationError
         If age < 0 or age > 150
     ValidationError
@@ -425,15 +439,15 @@ def find_user(users: dict, user_id: int) -> dict:
     """
     Parameters
     ----------
-    users : dict [Argument]
-    user_id : int [Argument]
+    users : dict
+    user_id : int
 
     Returns
     -------
     dict
 
     Raises
-    -------
+    ------
     NotFoundError
         If user_id not in users
     """
@@ -446,15 +460,15 @@ def perform_admin_action(user: str, is_admin: bool) -> str:
     """
     Parameters
     ----------
-    user : str [Argument]
-    is_admin : bool [Argument]
+    user : str
+    is_admin : bool
 
     Returns
     -------
     str
 
     Raises
-    -------
+    ------
     PermissionDeniedError
         If not is_admin
     """
@@ -467,14 +481,14 @@ def connect_to_service(attempts: int) -> str:
     """
     Parameters
     ----------
-    attempts : int [Argument]
+    attempts : int
 
     Returns
     -------
     str
 
     Raises
-    -------
+    ------
     RetryableError
         If attempts <= 0
     """
@@ -491,14 +505,14 @@ def parse_number(text: str) -> float:
     """
     Parameters
     ----------
-    text : str [Argument]
+    text : str
 
     Returns
     -------
     float
 
     Raises
-    -------
+    ------
     ValidationError
         If a certain condition is met.
     """
@@ -511,19 +525,21 @@ def parse_number(text: str) -> float:
 def greet_user(name: str, greeting: str = "Hello", uppercase: bool = False) -> str:
     """
     Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
-    sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquya
-    
+    sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
+            
     Parameters
     ----------
-    name : str [Argument]
-        Lorem ipsum dolor sit amet
-    greeting : str, optional, default: 'Hello' [Argument]
-    uppercase : bool, optional, default: False [Argument]
-        nonumy eirmod tempor invidun
+    name : str
+        Lorem ipsum dolor sit amet.
+    greeting : str, optional
+        default: 'Hello'
+    uppercase : bool, optional
+        nonumy eirmod tempor invidun. default: False
 
     Returns
     -------
     str
+
     """
     message = f"{greeting}, {name}!"
     return message.upper() if uppercase else message
@@ -532,15 +548,15 @@ def safe_divide(a: Union[int, float], b: Union[int, float]) -> float:
     """
     Parameters
     ----------
-    a : Union[int, float] [Argument]
-    b : Union[int, float] [Argument]
+    a : int | float
+    b : int | float
 
     Returns
     -------
     float
 
     Raises
-    -------
+    ------
     ValidationError
         Re-Raised from ZeroDivisionError
     """
@@ -558,14 +574,14 @@ def filtered_sqrt(values: List[float]) -> List[float]:
     """
     Parameters
     ----------
-    values : List[float] [Argument]
+    values : List[float]
 
     Returns
     -------
     List[float]
 
     Raises
-    -------
+    ------
     ValueError
         If x < 0
     """
@@ -573,14 +589,14 @@ def filtered_sqrt(values: List[float]) -> List[float]:
         """
         Parameters
         ----------
-        x : float [Argument]
+        x : float
 
         Returns
         -------
         float
 
         Raises
-        -------
+        ------
         ValueError
             If x < 0
         """
@@ -595,7 +611,8 @@ def make_multiplier(factor: float):
     """
     Parameters
     ----------
-    factor : float [Argument]
+    factor : float
+
     """
     return lambda x: (
         x * factor
@@ -614,15 +631,16 @@ class InventoryBatch:
         """
         Parameters
         ----------
-        batch_id : int [Argument]
-        items : Optional[List[str]], optional, default: None [Argument]
+        batch_id : int
+        items : List[str] | None, optional
+            default: None
 
         Returns
         -------
         None
 
         Raises
-        -------
+        ------
         ValidationError
             If not isinstance(batch_id, int) or batch_id < 0
         """
@@ -633,37 +651,37 @@ class InventoryBatch:
 
     def __str__(self) -> str:
         """
-
         Returns
         -------
         str
+
         """
         return f"Inventory Batch #{self.batch_id} containing {len(self.items)} items"
 
     def __repr__(self) -> str:
         """
-
         Returns
         -------
         str
+
         """
         return f"InventoryBatch(batch_id={self.batch_id!r}, items={self.items!r})"
 
     def __len__(self) -> int:
         """
-
         Returns
         -------
         int
+
         """
         return len(self.items)
 
     def __iter__(self) -> Generator[str, None, None]:
         """
-
         Returns
         -------
-        Generator[str, None, None]
+        Generator[str | None | None]
+
         """
         for item in self.items:
             yield item
@@ -672,18 +690,18 @@ class InventoryBatch:
         """
         Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
         sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
-        
+                
         Parameters
         ----------
-        item_name : str [Argument]
-            Lorem ipsum dolor sit amet
+        item_name : str
+            Lorem ipsum dolor sit amet.
 
         Returns
         -------
         None
 
         Raises
-        -------
+        ------
         ValidationError
             If not item_name.strip()
         """
@@ -695,14 +713,14 @@ class InventoryBatch:
         """
         Parameters
         ----------
-        item_name : str [Argument]
+        item_name : str
 
         Returns
         -------
         str
 
         Raises
-        -------
+        ------
         NotFoundError
             If item_name not in self.items
         """
@@ -715,14 +733,14 @@ class InventoryBatch:
         """
         Parameters
         ----------
-        index : int [Argument]
+        index : int
 
         Returns
         -------
         str
 
         Raises
-        -------
+        ------
         ValidationError
             Re-Raised from IndexError
         """
@@ -738,11 +756,12 @@ class InventoryBatch:
         """
         Parameters
         ----------
-        elements : list[str] [Argument]
+        elements : list[str]
 
         Returns
         -------
         'InventoryBatch'
+
         """
         from random import randint
         batch = InventoryBatch(randint(1, 100))
@@ -764,7 +783,8 @@ class Command:
         """
         Parameters
         ----------
-        cl_args : list[str] [Argument]
+        cl_args : list[str]
+
         """
         self._args = self.parser.parse_args(cl_args)
 
@@ -772,7 +792,8 @@ class Command:
         """
         Parameters
         ----------
-        sys_args : list[str] [Argument]
+        sys_args : list[str]
+
         """
         _, file_name, *kwargs = sys_args
         cls = "".join(obj.title() for obj in file_name.split("_"))
@@ -794,7 +815,8 @@ def decode_jwt(val):
     """
     Parameters
     ----------
-    val : [Argument]
+    val : Any
+
     """
     return object()
 
@@ -810,14 +832,14 @@ async def get_current_user(token: Annotated[HTTPAuthorizationCredentials, Depend
     """
     Parameters
     ----------
-    token : Annotated[HTTPAuthorizationCredentials, ] [Argument]
+    token : HTTPAuthorizationCredentials
 
     Returns
     -------
-    Union[UserAuth, None]
+    UserAuth | None
 
     Raises
-    -------
+    ------
     HTTPException
         If a certain condition is met.
     HTTPException
@@ -851,23 +873,23 @@ async def update_exercise(
 ) -> Exercise | None:
     """
     Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
-    sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquya
-    
+    sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
+            
     Parameters
     ----------
-    exercise_id : uuid.UUID [Argument]
-        Lorem ipsum dolor sit amet
-    data : ExerciseUpdateSerializer [Argument]
-        nonumy eirmod tempor invidun
-    user : Annotated[UserAuth, ] [Argument]
-    db : AsyncSession [Argument]
+    exercise_id : uuid.UUID
+        Lorem ipsum dolor sit amet.
+    data : ExerciseUpdateSerializer
+        nonumy eirmod tempor invidun.
+    user : UserAuth
+    db : AsyncSession
 
     Returns
     -------
-    Union[Exercise, None]
+    Exercise | None
 
     Raises
-    -------
+    ------
     HTTPException
         If not obj
     HTTPException
@@ -890,15 +912,15 @@ async def get_training_plans(
     """
     Parameters
     ----------
-    user : Annotated[UserAuth, ] [Argument]
-    db : AsyncSession [Argument]
+    user : UserAuth
+    db : AsyncSession
 
     Returns
     -------
     Sequence[TrainingPlan]
 
     Raises
-    -------
+    ------
     HTTPException
         If not user.is_superuser
     """
@@ -920,16 +942,16 @@ async def get_training_plan(
     """
     Parameters
     ----------
-    training_plan_id : uuid.UUID [Argument]
-    user : Annotated[UserAuth, ] [Argument]
-    db : AsyncSession [Argument]
+    training_plan_id : uuid.UUID
+    user : UserAuth
+    db : AsyncSession
 
     Returns
     -------
-    Union[TrainingPlan, None]
+    TrainingPlan | None
 
     Raises
-    -------
+    ------
     HTTPException
         If not obj
     HTTPException
@@ -954,21 +976,21 @@ async def update_training_plan(
     """
     Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
     sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
-    
+        
     Parameters
     ----------
-    training_plan_id : uuid.UUID [Argument]
-        Lorem ipsum dolor sit amet
-    data : TrainingPlanUpdateSerializer [Argument]
-    user : Annotated[UserAuth, ] [Argument]
-    db : AsyncSession [Argument]
+    training_plan_id : uuid.UUID
+        Lorem ipsum dolor sit amet.
+    data : TrainingPlanUpdateSerializer
+    user : UserAuth
+    db : AsyncSession
 
     Returns
     -------
-    Union[TrainingPlan, None]
+    TrainingPlan | None
 
     Raises
-    -------
+    ------
     HTTPException
         If not obj
     HTTPException

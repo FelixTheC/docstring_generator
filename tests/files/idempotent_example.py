@@ -2,10 +2,11 @@ def greet(name: str) -> str:
     """
     Parameters
     ----------
-    name : str [Argument]
+    name : str
 
     Returns
     -------
     str
+
     """
     return f"Hello {name}"

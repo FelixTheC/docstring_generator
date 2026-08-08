@@ -96,6 +96,14 @@ class RetryableError(AppError):
         super().__init__(f"Transient failure: {reason} (retry after {retry_after}s)")
 
 
+def empty_args_no_docstring():
+    return None
+
+
+def empty_args_with_docstring():
+    """This function does nothing."""
+    return None
+
 # =====================================================================
 # PART 1: Raising built-in exceptions – every common mechanism
 # =====================================================================
@@ -127,14 +135,14 @@ def raise_type_error(value) -> str:
     return value.upper()
 
 
-def raise_index_error(data: list, index: int):
+def raise_index_error(data: list, *, index: int):
     """
     :param data:
     :type data: list
     :kind data: Argument
     :param index:
     :type index: int
-    :kind index: Argument
+    :kind index: Keyword only argument
     :raises IndexError: If index >= len(data) or index < -len(data)
     """
     if index >= len(data) or index < -len(data):
@@ -142,14 +150,14 @@ def raise_index_error(data: list, index: int):
     return data[index]
 
 
-def raise_key_error(mapping: dict, key: str):
+def raise_key_error(mapping: dict, key: str, /):
     """
     :param mapping:
     :type mapping: dict
-    :kind mapping: Argument
+    :kind mapping: Positional only argument
     :param key:
     :type key: str
-    :kind key: Argument
+    :kind key: Positional only argument
     :raises KeyError: If key not in mapping
     """
     if key not in mapping:
@@ -283,7 +291,7 @@ def generator_with_exception(limit: int) -> Generator[int, None, None]:
     :param limit:
     :type limit: int
     :kind limit: Argument
-    :rtype: Generator[int, None, None]
+    :rtype: Generator[int | None | None]
     :raises ValueError: If limit < 0
     """
     if limit < 0:
@@ -391,16 +399,16 @@ def parse_number(text: str) -> float:
 def greet_user(name: str, greeting: str = "Hello", uppercase: bool = False) -> str:
     """
     Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
-    sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquya
-    
-    :param name:  Lorem ipsum dolor sit amet
+    sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
+            
+    :param name: Lorem ipsum dolor sit amet
     :type name: str
     :kind name: Argument
     :param greeting:
         (default is 'Hello')
     :type greeting: str, optional
     :kind greeting: Argument
-    :param uppercase:  nonumy eirmod tempor invidun
+    :param uppercase: nonumy eirmod tempor invidun
         (default is False)
     :type uppercase: bool, optional
     :kind uppercase: Argument
@@ -412,10 +420,10 @@ def greet_user(name: str, greeting: str = "Hello", uppercase: bool = False) -> s
 def safe_divide(a: Union[int, float], b: Union[int, float]) -> float:
     """
     :param a:
-    :type a: Union[int, float]
+    :type a: int | float
     :kind a: Argument
     :param b:
-    :type b: Union[int, float]
+    :type b: int | float
     :kind b: Argument
     :rtype: float
     :raises ValidationError: Re-Raised from ZeroDivisionError
@@ -479,7 +487,7 @@ class InventoryBatch:
         :kind batch_id: Argument
         :param items:
             (default is None)
-        :type items: Optional[List[str]], optional
+        :type items: List[str] | None, optional
         :kind items: Argument
         :rtype: None
         :raises ValidationError: If not isinstance(batch_id, int) or batch_id < 0
@@ -509,7 +517,7 @@ class InventoryBatch:
 
     def __iter__(self) -> Generator[str, None, None]:
         """
-        :rtype: Generator[str, None, None]
+        :rtype: Generator[str | None | None]
         """
         for item in self.items:
             yield item
@@ -518,8 +526,8 @@ class InventoryBatch:
         """
         Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
         sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
-        
-        :param item_name:  Lorem ipsum dolor sit amet
+                
+        :param item_name: Lorem ipsum dolor sit amet
         :type item_name: str
         :kind item_name: Argument
         :rtype: None
@@ -629,9 +637,9 @@ class UserAuth(BaseModel):
 async def get_current_user(token: Annotated[HTTPAuthorizationCredentials, Depends(oauth2_scheme)]) -> UserAuth | None:
     """
     :param token:
-    :type token: Annotated[HTTPAuthorizationCredentials, ]
+    :type token: HTTPAuthorizationCredentials
     :kind token: Argument
-    :rtype: Union[UserAuth, None]
+    :rtype: UserAuth | None
     :raises HTTPException: If a certain condition is met.
     :raises HTTPException: If current_time > user_auth.exp
     :raises HTTPException: If not user_auth.is_active
@@ -662,21 +670,21 @@ async def update_exercise(
 ) -> Exercise | None:
     """
     Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
-    sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquya
-    
-    :param exercise_id:  Lorem ipsum dolor sit amet
+    sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
+            
+    :param exercise_id: Lorem ipsum dolor sit amet
     :type exercise_id: uuid.UUID
     :kind exercise_id: Argument
-    :param data:  nonumy eirmod tempor invidun
+    :param data: nonumy eirmod tempor invidun
     :type data: ExerciseUpdateSerializer
     :kind data: Argument
     :param user:
-    :type user: Annotated[UserAuth, ]
+    :type user: UserAuth
     :kind user: Argument
     :param db:
     :type db: AsyncSession
     :kind db: Argument
-    :rtype: Union[Exercise, None]
+    :rtype: Exercise | None
     :raises HTTPException: If not obj
     :raises HTTPException: If not user.is_superuser
     """
@@ -696,7 +704,7 @@ async def get_training_plans(
 ) -> Sequence[TrainingPlan]:
     """
     :param user:
-    :type user: Annotated[UserAuth, ]
+    :type user: UserAuth
     :kind user: Argument
     :param db:
     :type db: AsyncSession
@@ -724,12 +732,12 @@ async def get_training_plan(
     :type training_plan_id: uuid.UUID
     :kind training_plan_id: Argument
     :param user:
-    :type user: Annotated[UserAuth, ]
+    :type user: UserAuth
     :kind user: Argument
     :param db:
     :type db: AsyncSession
     :kind db: Argument
-    :rtype: Union[TrainingPlan, None]
+    :rtype: TrainingPlan | None
     :raises HTTPException: If not obj
     :raises HTTPException: If not user.is_superuser
     """
@@ -752,20 +760,20 @@ async def update_training_plan(
     """
     Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
     sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
-    
-    :param training_plan_id:  Lorem ipsum dolor sit amet
+        
+    :param training_plan_id: Lorem ipsum dolor sit amet
     :type training_plan_id: uuid.UUID
     :kind training_plan_id: Argument
     :param data:
     :type data: TrainingPlanUpdateSerializer
     :kind data: Argument
     :param user:
-    :type user: Annotated[UserAuth, ]
+    :type user: UserAuth
     :kind user: Argument
     :param db:
     :type db: AsyncSession
     :kind db: Argument
-    :rtype: Union[TrainingPlan, None]
+    :rtype: TrainingPlan | None
     :raises HTTPException: If not obj
     :raises HTTPException: If not user.is_superuser
     """
