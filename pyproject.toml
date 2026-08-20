@@ -1,6 +1,6 @@
 [project]
 name = "docstring-generator"
-version = "2.1.1"
+version = "2.1.2"
 description = "Auto generate docstring from type-hints."
 authors = [
     { name = "FelixTheC" },
