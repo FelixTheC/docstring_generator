@@ -32,7 +32,6 @@ def print_results(
 
     total_checked = 0
     total_passing = 0
-    any_failed_threshold = False
 
     for filepath, metrics in all_results.items():
         total = metrics.get("num_functions_checked", 0)
@@ -49,9 +48,6 @@ def print_results(
 
         total_checked += total
         total_passing += passing_for_file
-
-        if threshold and file_score < threshold:
-            any_failed_threshold = True
 
         # Shorten filenames from the left if they exceed 30 chars
         display_name = filepath
@@ -70,8 +66,7 @@ def print_results(
             print("Note: Strict mode active (Partial counted as missing)")
 
         if threshold is not None:
-            print(f"Target Threshold:     {threshold}%")
-            if overall_score < threshold or any_failed_threshold:
+            if overall_score < threshold:
                 sys.stderr.write("[X] FAILURE: Docstring coverage criteria not met.")
                 return 1
             else:
