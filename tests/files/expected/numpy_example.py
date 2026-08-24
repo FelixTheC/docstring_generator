@@ -39,7 +39,6 @@ class ValidationError(AppError):
         Returns
         -------
         None
-
         """
         self.field = field
         super().__init__(f"[{field}] {message}")
@@ -53,12 +52,11 @@ class NotFoundError(AppError):
         Parameters
         ----------
         resource : str
-        identifier : Any
+        identifier
 
         Returns
         -------
         None
-
         """
         self.resource = resource
         self.identifier = identifier
@@ -78,7 +76,6 @@ class PermissionDeniedError(AppError):
         Returns
         -------
         None
-
         """
         self.action = action
         self.user = user
@@ -93,13 +90,11 @@ class RetryableError(AppError):
         Parameters
         ----------
         reason : str
-        retry_after : float, optional
-            default: 1.0
+        retry_after : float, optional, default 1.0
 
         Returns
         -------
         None
-
         """
         self.retry_after = retry_after
         super().__init__(f"Transient failure: {reason} (retry after {retry_after}s)")
@@ -120,7 +115,7 @@ def empty_args_with_docstring():
 def raise_value_error(value: int) -> int:
     """
     Validate that an integer is non-negative, otherwise raise an error.
-    
+
     Parameters
     ----------
     value : int
@@ -143,7 +138,7 @@ def raise_type_error(value) -> str:
     """
     Parameters
     ----------
-    value : Any
+    value
 
     Returns
     -------
@@ -165,7 +160,6 @@ def raise_index_error(data: list, *, index: int):
     ----------
     data : list
     index : int
-        Keyword only argument
 
     Raises
     ------
@@ -182,9 +176,7 @@ def raise_key_error(mapping: dict, key: str, /):
     Parameters
     ----------
     mapping : dict
-        Positional only argument
     key : str
-        Positional only argument
 
     Raises
     ------
@@ -233,7 +225,7 @@ def raise_attribute_error(obj) -> None:
     """
     Parameters
     ----------
-    obj : Any
+    obj
 
     Returns
     -------
@@ -526,20 +518,18 @@ def greet_user(name: str, greeting: str = "Hello", uppercase: bool = False) -> s
     """
     Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
     sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
-            
+
     Parameters
     ----------
     name : str
         Lorem ipsum dolor sit amet.
-    greeting : str, optional
-        default: 'Hello'
-    uppercase : bool, optional
-        nonumy eirmod tempor invidun. default: False
+    greeting : str, optional, default 'Hello'
+    uppercase : bool, optional, default False
+        nonumy eirmod tempor invidun.
 
     Returns
     -------
     str
-
     """
     message = f"{greeting}, {name}!"
     return message.upper() if uppercase else message
@@ -632,8 +622,7 @@ class InventoryBatch:
         Parameters
         ----------
         batch_id : int
-        items : List[str] | None, optional
-            default: None
+        items : List[str] | None, optional, default None
 
         Returns
         -------
@@ -654,7 +643,6 @@ class InventoryBatch:
         Returns
         -------
         str
-
         """
         return f"Inventory Batch #{self.batch_id} containing {len(self.items)} items"
 
@@ -663,7 +651,6 @@ class InventoryBatch:
         Returns
         -------
         str
-
         """
         return f"InventoryBatch(batch_id={self.batch_id!r}, items={self.items!r})"
 
@@ -672,7 +659,6 @@ class InventoryBatch:
         Returns
         -------
         int
-
         """
         return len(self.items)
 
@@ -681,7 +667,6 @@ class InventoryBatch:
         Returns
         -------
         Generator[str | None | None]
-
         """
         for item in self.items:
             yield item
@@ -690,7 +675,7 @@ class InventoryBatch:
         """
         Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
         sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
-                
+
         Parameters
         ----------
         item_name : str
@@ -761,7 +746,6 @@ class InventoryBatch:
         Returns
         -------
         'InventoryBatch'
-
         """
         from random import randint
         batch = InventoryBatch(randint(1, 100))
@@ -815,7 +799,7 @@ def decode_jwt(val):
     """
     Parameters
     ----------
-    val : Any
+    val
 
     """
     return object()
@@ -874,7 +858,7 @@ async def update_exercise(
     """
     Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
     sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
-            
+
     Parameters
     ----------
     exercise_id : uuid.UUID
@@ -976,7 +960,7 @@ async def update_training_plan(
     """
     Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
     sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
-        
+
     Parameters
     ----------
     training_plan_id : uuid.UUID

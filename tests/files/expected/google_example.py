@@ -32,8 +32,8 @@ class ValidationError(AppError):
     def __init__(self, field: str, message: str) -> None:
         """
         Args:
-            field (str): 
-            message (str): 
+            field (str):
+            message (str):
         Returns:
             None: 
         """
@@ -47,8 +47,8 @@ class NotFoundError(AppError):
     def __init__(self, resource: str, identifier) -> None:
         """
         Args:
-            resource (str): 
-            identifier (Any): 
+            resource (str):
+            identifier:
         Returns:
             None: 
         """
@@ -63,8 +63,8 @@ class PermissionDeniedError(AppError):
     def __init__(self, action: str, user: str) -> None:
         """
         Args:
-            action (str): 
-            user (str): 
+            action (str):
+            user (str):
         Returns:
             None: 
         """
@@ -79,7 +79,7 @@ class RetryableError(AppError):
     def __init__(self, reason: str, retry_after: float = 1.0) -> None:
         """
         Args:
-            reason (str): 
+            reason (str):
             retry_after (float, optional): Defaults to 1.0.
         Returns:
             None: 
@@ -103,9 +103,9 @@ def empty_args_with_docstring():
 def raise_value_error(value: int) -> int:
     """
     Validate that an integer is non-negative, otherwise raise an error.
-    
+
     Args:
-        value (int): 
+        value (int):
     Returns:
         int: 
     Raises:
@@ -119,7 +119,7 @@ def raise_value_error(value: int) -> int:
 def raise_type_error(value) -> str:
     """
     Args:
-        value (Any): 
+        value:
     Returns:
         str: 
     Raises:
@@ -133,8 +133,8 @@ def raise_type_error(value) -> str:
 def raise_index_error(data: list, *, index: int):
     """
     Args:
-        data (list): 
-        index (int): Keyword only argument. 
+        data (list):
+        index (int): Keyword only argument.
     Raises:
         IndexError: If index >= len(data) or index < -len(data)
     """
@@ -146,8 +146,8 @@ def raise_index_error(data: list, *, index: int):
 def raise_key_error(mapping: dict, key: str, /):
     """
     Args:
-        mapping (dict): Positional only argument. 
-        key (str): Positional only argument. 
+        mapping (dict): Positional only argument.
+        key (str): Positional only argument.
     Raises:
         KeyError: If key not in mapping
     """
@@ -159,7 +159,7 @@ def raise_key_error(mapping: dict, key: str, /):
 def raise_runtime_error(flag: bool) -> None:
     """
     Args:
-        flag (bool): 
+        flag (bool):
     Returns:
         None: 
     Raises:
@@ -182,7 +182,7 @@ def raise_not_implemented() -> None:
 def raise_attribute_error(obj) -> None:
     """
     Args:
-        obj (Any): 
+        obj:
     Returns:
         None: 
     Raises:
@@ -195,7 +195,7 @@ def raise_attribute_error(obj) -> None:
 def raise_zero_division_error(divisor: float) -> float:
     """
     Args:
-        divisor (float): 
+        divisor (float):
     Returns:
         float: 
     Raises:
@@ -209,7 +209,7 @@ def raise_zero_division_error(divisor: float) -> float:
 def raise_overflow_error(exponent: int) -> int:
     """
     Args:
-        exponent (int): 
+        exponent (int):
     Returns:
         int: 
     Raises:
@@ -238,8 +238,8 @@ def raise_stop_iteration() -> None:
 def reraise_with_context(data: dict, key: str):
     """
     Args:
-        data (dict): 
-        key (str): 
+        data (dict):
+        key (str):
     Raises:
         NotFoundError: Re-Raised from KeyError
     """
@@ -252,8 +252,8 @@ def reraise_with_context(data: dict, key: str):
 def suppress_and_raise_new(items: list, index: int):
     """
     Args:
-        items (list): 
-        index (int): 
+        items (list):
+        index (int):
     Raises:
         ValidationError: Re-Raised from IndexError
     """
@@ -266,7 +266,7 @@ def suppress_and_raise_new(items: list, index: int):
 def reraise_bare(value: int) -> int:
     """
     Args:
-        value (int): 
+        value (int):
     Returns:
         int: 
     Raises:
@@ -286,7 +286,7 @@ def reraise_bare(value: int) -> int:
 def generator_with_exception(limit: int) -> Generator[int, None, None]:
     """
     Args:
-        limit (int): 
+        limit (int):
     Returns:
         Generator[int | None | None]: 
     Raises:
@@ -301,7 +301,7 @@ def generator_with_exception(limit: int) -> Generator[int, None, None]:
 def context_manager_raise(path: str):
     """
     Args:
-        path (str): 
+        path (str):
     Raises:
         FileNotFoundError: If not path
     """
@@ -318,7 +318,7 @@ def context_manager_raise(path: str):
 def validate_age(age: int) -> int:
     """
     Args:
-        age (int): 
+        age (int):
     Returns:
         int: 
     Raises:
@@ -335,8 +335,8 @@ def validate_age(age: int) -> int:
 def find_user(users: dict, user_id: int) -> dict:
     """
     Args:
-        users (dict): 
-        user_id (int): 
+        users (dict):
+        user_id (int):
     Returns:
         dict: 
     Raises:
@@ -350,8 +350,8 @@ def find_user(users: dict, user_id: int) -> dict:
 def perform_admin_action(user: str, is_admin: bool) -> str:
     """
     Args:
-        user (str): 
-        is_admin (bool): 
+        user (str):
+        is_admin (bool):
     Returns:
         str: 
     Raises:
@@ -365,7 +365,7 @@ def perform_admin_action(user: str, is_admin: bool) -> str:
 def connect_to_service(attempts: int) -> str:
     """
     Args:
-        attempts (int): 
+        attempts (int):
     Returns:
         str: 
     Raises:
@@ -383,7 +383,7 @@ def connect_to_service(attempts: int) -> str:
 def parse_number(text: str) -> float:
     """
     Args:
-        text (str): 
+        text (str):
     Returns:
         float: 
     Raises:
@@ -399,9 +399,9 @@ def greet_user(name: str, greeting: str = "Hello", uppercase: bool = False) -> s
     """
     Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
     sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
-            
+
     Args:
-        name (str): Lorem ipsum dolor sit amet. 
+        name (str): Lorem ipsum dolor sit amet.
         greeting (str, optional): Defaults to 'Hello'.
         uppercase (bool, optional): nonumy eirmod tempor invidun. Defaults to False.
     Returns:
@@ -413,8 +413,8 @@ def greet_user(name: str, greeting: str = "Hello", uppercase: bool = False) -> s
 def safe_divide(a: Union[int, float], b: Union[int, float]) -> float:
     """
     Args:
-        a (int | float): 
-        b (int | float): 
+        a (int | float):
+        b (int | float):
     Returns:
         float: 
     Raises:
@@ -433,7 +433,7 @@ def safe_divide(a: Union[int, float], b: Union[int, float]) -> float:
 def filtered_sqrt(values: List[float]) -> List[float]:
     """
     Args:
-        values (List[float]): 
+        values (List[float]):
     Returns:
         List[float]: 
     Raises:
@@ -442,7 +442,7 @@ def filtered_sqrt(values: List[float]) -> List[float]:
     def _sqrt(x: float) -> float:
         """
         Args:
-            x (float): 
+            x (float):
         Returns:
             float: 
         Raises:
@@ -458,7 +458,7 @@ def filtered_sqrt(values: List[float]) -> List[float]:
 def make_multiplier(factor: float):
     """
     Args:
-        factor (float): 
+        factor (float):
     """
     return lambda x: (
         x * factor
@@ -476,7 +476,7 @@ class InventoryBatch:
     def __init__(self, batch_id: int, items: Optional[List[str]] = None) -> None:
         """
         Args:
-            batch_id (int): 
+            batch_id (int):
             items (List[str] | None, optional): Defaults to None.
         Returns:
             None: 
@@ -521,9 +521,9 @@ class InventoryBatch:
         """
         Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
         sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
-                
+
         Args:
-            item_name (str): Lorem ipsum dolor sit amet. 
+            item_name (str): Lorem ipsum dolor sit amet.
         Returns:
             None: 
         Raises:
@@ -536,7 +536,7 @@ class InventoryBatch:
     def remove_item(self, item_name: str) -> str:
         """
         Args:
-            item_name (str): 
+            item_name (str):
         Returns:
             str: 
         Raises:
@@ -550,7 +550,7 @@ class InventoryBatch:
     def get_item(self, index: int) -> str:
         """
         Args:
-            index (int): 
+            index (int):
         Returns:
             str: 
         Raises:
@@ -567,7 +567,7 @@ class InventoryBatch:
     def new_batch(cls, elements: list[str]) -> "InventoryBatch":
         """
         Args:
-            elements (list[str]): 
+            elements (list[str]):
         Returns:
             'InventoryBatch': 
         """
@@ -590,14 +590,14 @@ class Command:
     def args(self, cl_args: list[str]):
         """
         Args:
-            cl_args (list[str]): 
+            cl_args (list[str]):
         """
         self._args = self.parser.parse_args(cl_args)
 
     def __call__(self, sys_args: list[str]):
         """
         Args:
-            sys_args (list[str]): 
+            sys_args (list[str]):
         """
         _, file_name, *kwargs = sys_args
         cls = "".join(obj.title() for obj in file_name.split("_"))
@@ -618,7 +618,7 @@ oauth2_scheme = HTTPBearer()
 def decode_jwt(val):
     """
     Args:
-        val (Any): 
+        val:
     """
     return object()
 
@@ -633,7 +633,7 @@ class UserAuth(BaseModel):
 async def get_current_user(token: Annotated[HTTPAuthorizationCredentials, Depends(oauth2_scheme)]) -> UserAuth | None:
     """
     Args:
-        token (HTTPAuthorizationCredentials): 
+        token (HTTPAuthorizationCredentials):
     Returns:
         UserAuth | None: 
     Raises:
@@ -668,12 +668,12 @@ async def update_exercise(
     """
     Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
     sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
-            
+
     Args:
-        exercise_id (uuid.UUID): Lorem ipsum dolor sit amet. 
-        data (ExerciseUpdateSerializer): nonumy eirmod tempor invidun. 
-        user (UserAuth): 
-        db (AsyncSession): 
+        exercise_id (uuid.UUID): Lorem ipsum dolor sit amet.
+        data (ExerciseUpdateSerializer): nonumy eirmod tempor invidun.
+        user (UserAuth):
+        db (AsyncSession):
     Returns:
         Exercise | None: 
     Raises:
@@ -696,8 +696,8 @@ async def get_training_plans(
 ) -> Sequence[TrainingPlan]:
     """
     Args:
-        user (UserAuth): 
-        db (AsyncSession): 
+        user (UserAuth):
+        db (AsyncSession):
     Returns:
         Sequence[TrainingPlan]: 
     Raises:
@@ -720,9 +720,9 @@ async def get_training_plan(
 ) -> TrainingPlan | None:
     """
     Args:
-        training_plan_id (uuid.UUID): 
-        user (UserAuth): 
-        db (AsyncSession): 
+        training_plan_id (uuid.UUID):
+        user (UserAuth):
+        db (AsyncSession):
     Returns:
         TrainingPlan | None: 
     Raises:
@@ -748,12 +748,12 @@ async def update_training_plan(
     """
     Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
     sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
-        
+
     Args:
-        training_plan_id (uuid.UUID): Lorem ipsum dolor sit amet. 
-        data (TrainingPlanUpdateSerializer): 
-        user (UserAuth): 
-        db (AsyncSession): 
+        training_plan_id (uuid.UUID): Lorem ipsum dolor sit amet.
+        data (TrainingPlanUpdateSerializer):
+        user (UserAuth):
+        db (AsyncSession):
     Returns:
         TrainingPlan | None: 
     Raises:

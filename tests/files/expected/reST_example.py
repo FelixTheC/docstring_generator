@@ -111,7 +111,7 @@ def empty_args_with_docstring():
 def raise_value_error(value: int) -> int:
     """
     Validate that an integer is non-negative, otherwise raise an error.
-    
+
     :param value:
     :type value: int
     :kind value: Argument
@@ -400,7 +400,7 @@ def greet_user(name: str, greeting: str = "Hello", uppercase: bool = False) -> s
     """
     Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
     sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
-            
+
     :param name: Lorem ipsum dolor sit amet
     :type name: str
     :kind name: Argument
@@ -526,7 +526,7 @@ class InventoryBatch:
         """
         Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
         sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
-                
+
         :param item_name: Lorem ipsum dolor sit amet
         :type item_name: str
         :kind item_name: Argument
@@ -671,7 +671,7 @@ async def update_exercise(
     """
     Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
     sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
-            
+
     :param exercise_id: Lorem ipsum dolor sit amet
     :type exercise_id: uuid.UUID
     :kind exercise_id: Argument
@@ -760,7 +760,7 @@ async def update_training_plan(
     """
     Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
     sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
-        
+
     :param training_plan_id: Lorem ipsum dolor sit amet
     :type training_plan_id: uuid.UUID
     :kind training_plan_id: Argument

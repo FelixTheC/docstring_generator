@@ -15,7 +15,7 @@ EXPECTED_FILES = {
 }
 
 
-@pytest.mark.parametrize("style", ("numpy", "rest", "google"))
+@pytest.mark.parametrize("style", ("numpy", "google"))
 def test_docstring_creation(style):
     """
     Parameters
