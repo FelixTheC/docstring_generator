@@ -172,6 +172,40 @@ gendocs_new mydir/ --style google --overwrite-style true
 
 Useful when migrating a codebase from one docstring convention to another.
 
+### `--ignore-private` — Skip private functions/methods
+
+Skip functions and methods whose name starts with a single underscore (e.g. `_helper`), leaving them untouched. Dunder methods (e.g. `__init__`, `__str__`) are **not** affected by this flag — use `--ignore-magic` for those:
+
+```shell
+gendocs_new mydir/ --ignore-private
+```
+
+Can also be enabled permanently via `pyproject.toml`:
+
+```toml
+[tool.docstring_generator]
+ignore_private = true
+```
+
+**Default:** `False`
+
+### `--ignore-uncommented` — Skip functions without an existing docstring
+
+Skip functions and methods that currently have **no docstring at all**, leaving them untouched instead of generating one. Good for simple helper functions where the name is already self-explanatory. Functions that already have *some* docstring are still processed normally (e.g. missing `Parameters`/`Returns` sections are added):
+
+```shell
+gendocs_new mydir/ --ignore-uncommented
+```
+
+Can also be enabled permanently via `pyproject.toml`:
+
+```toml
+[tool.docstring_generator]
+ignore_uncommented = true
+```
+
+**Default:** `False`
+
 ---
 
 ## Configuration via `pyproject.toml`
@@ -185,9 +219,55 @@ threshold = 90
 exclude_files = ["conftest.py", "settings.py"]
 exclude_dirs = ["tests", "migrations"]
 ignore_magic = true
+ignore_private = true
+ignore_uncommented = true
 ```
 
 CLI flags always override `pyproject.toml` values. The tool automatically walks up from the target path to find the nearest `pyproject.toml`.
+
+---
+
+## Skip Directives — `# docstring: skip` / `# docstring: off` / `# docstring: on`
+
+When a CLI flag is too coarse, tell the generator to leave specific parts of a file untouched using `# docstring: skip` comments. Three scopes are supported:
+
+### 1. File-level skip
+
+Place the directive within the first 10 lines of the file to skip the entire file:
+
+```python
+# docstring: skip
+
+def some_function():
+    return None
+```
+
+### 2. Single-target skip
+
+Place the directive as the first statement inside a function or method body to skip just that target:
+
+```python
+def helper_three(a: int) -> int:
+    # docstring: skip
+    return a
+```
+
+### 3. Block/Range skip
+
+Wrap a group of functions or classes between `# docstring: off` and `# docstring: on` to skip everything in between:
+
+```python
+# docstring: off
+def helper_one():
+    ...
+
+
+def helper_two():
+    ...
+# docstring: on
+```
+
+> ⚠️ **Known limitation:** currently only the function immediately following `# docstring: off` is reliably skipped — functions further down the block may still receive a generated docstring. Until this is fixed upstream, prefer the single-target directive on each function if you need every function in a range excluded. See the full [Skip Directives guide](https://felixthec.github.io/docstring_generator/skip-directives/) for details.
 
 ---
 

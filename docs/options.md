@@ -132,3 +132,49 @@ gendocs_new mydir/ --style google --overwrite-style true
 ```
 
 Useful when migrating a codebase from one docstring convention to another.
+
+---
+
+## `--ignore-private` — Skip private functions/methods
+
+Skip functions and methods whose name starts with a single underscore (e.g. `_helper`), leaving them untouched. Dunder methods (e.g. `__init__`, `__str__`) are **not** affected by this flag — use `--ignore-magic` for those:
+
+```shell
+gendocs_new mydir/ --ignore-private
+```
+
+Can also be enabled permanently via `pyproject.toml`:
+
+```toml
+[tool.docstring_generator]
+ignore_private = true
+```
+
+**Default:** `False`
+
+---
+
+## `--ignore-uncommented` — Skip functions without an existing docstring
+
+Skip functions and methods that currently have **no docstring at all**, leaving them untouched instead of generating one. This is useful for simple helper functions where the name is already self-explanatory and you don't want the tool to add boilerplate:
+
+```shell
+gendocs_new mydir/ --ignore-uncommented
+```
+
+Functions that already have *some* docstring are still processed normally (e.g. missing `Parameters`/`Returns` sections are added). Only fully undocumented functions are skipped.
+
+Can also be enabled permanently via `pyproject.toml`:
+
+```toml
+[tool.docstring_generator]
+ignore_uncommented = true
+```
+
+**Default:** `False`
+
+---
+
+## Skip Directives — `# docstring: skip` / `# docstring: off` / `# docstring: on`
+
+Sometimes a flag is too coarse — you want to skip *specific* files, functions, or classes without changing how the rest of the codebase is processed. For that, `docstring_generator` supports inline comment directives. See the [Skip Directives](skip-directives.md) page for the full guide with examples for each of the three supported scopes (file-level, single-target, and block/range).
