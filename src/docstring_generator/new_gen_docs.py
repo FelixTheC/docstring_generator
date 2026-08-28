@@ -3,10 +3,10 @@ import pathlib
 import shutil
 import subprocess
 import tempfile
+import tomllib  # type: ignore
 
 import click
 import docstring_generator_ext
-import tomllib  # type: ignore
 
 from docstring_generator.output import print_results
 
@@ -24,7 +24,7 @@ def find_pyproject_toml(start_paths: tuple[str, ...]) -> pathlib.Path | None:
 
     Parameters
     ----------
-    start_paths : tuple[str, Ellipsis] [Argument]
+    start_paths : tuple[str, Ellipsis]
 
     Returns
     -------
@@ -50,7 +50,7 @@ def load_toml_config(config_path: pathlib.Path | None) -> dict:
     """Finds and parses configuration options from pyproject.toml.
     Parameters
     ----------
-    config_path : Union[pathlib.Path, None] [Argument]
+    config_path : Union[pathlib.Path, None]
 
     Returns
     -------
@@ -98,6 +98,16 @@ def load_toml_config(config_path: pathlib.Path | None) -> dict:
     is_flag=True,
     help="Only process files changed or staged in git. Aborts if git is not available.",
 )
+@click.option(
+    "--ignore-private",
+    is_flag=True,
+    help="Ignore private functions.",
+)
+@click.option(
+    "--ignore-uncommented",
+    is_flag=True,
+    help="Ignore functions without docstrings. This is good for simple helper functions where the name is enough",
+)
 def main(
     paths: tuple[str, ...],
     style: str,
@@ -110,21 +120,25 @@ def main(
     dry_run: bool,
     ignore_magic: bool,
     changed_only: bool,
+    ignore_private: bool,
+    ignore_uncommented: bool,
 ) -> None:
     """
     Parameters
     ----------
-    paths : tuple[str, Ellipsis] [Argument]
-    style : str [Argument]
-    check : bool [Argument]
-    strict : bool [Argument]
-    threshold : Union[int, None] [Argument]
-    exclude_file : list[str] [Argument]
-    exclude_dir : list[str] [Argument]
-    overwrite_style : bool [Argument]
-    dry_run : bool [Argument]
-    ignore_magic : bool [Argument]
-    changed_only : bool [Argument]
+    paths : tuple[str, Ellipsis]
+    style : str
+    check : bool
+    strict : bool
+    threshold : Union[int, None]
+    exclude_file : list[str]
+    exclude_dir : list[str]
+    overwrite_style : bool
+    dry_run : bool
+    ignore_magic : bool
+    changed_only : bool
+    ignore_private : bool
+    ignore_uncommented : bool
 
     Returns
     -------
@@ -138,6 +152,8 @@ def main(
     _exclude_files = config.get("exclude_files", [])
     _exclude_dirs = config.get("exclude_dirs", [])
     _ignore_magic = config.get("ignore_magic", False)
+    _ignore_private = config.get("ignore_private", False)
+    _ignore_uncommented = config.get("ignore_uncommented", False)
 
     # CLI args always wins
     if exclude_file:
@@ -146,6 +162,10 @@ def main(
         _exclude_dirs = exclude_dir
     if ignore_magic:
         _ignore_magic = ignore_magic
+    if ignore_private:
+        _ignore_private = ignore_private
+    if ignore_uncommented:
+        _ignore_uncommented = ignore_uncommented
 
     changed_files: set[str] | None = None
     if changed_only:
@@ -202,7 +222,7 @@ def main(
     if check:
         checked_files = {
             file.absolute().as_posix(): docstring_generator_ext.check_docstring(
-                file.absolute().as_posix(), _ignore_magic
+                file.absolute().as_posix(), _ignore_magic, _ignore_private, _ignore_uncommented
             )
             for file in files_
         }
@@ -223,7 +243,12 @@ def main(
                     shutil.copy2(file, tmp_path)
                     try:
                         docstring_generator_ext.parse_file(
-                            tmp_path.as_posix(), docstring_style, overwrite_style
+                            tmp_path.as_posix(),
+                            docstring_style,
+                            overwrite_style,
+                            _ignore_magic,
+                            _ignore_private,
+                            _ignore_uncommented,
                         )
                         original = file.read_text(encoding="utf-8").splitlines(keepends=True)
                         modified = tmp_path.read_text(encoding="utf-8").splitlines(keepends=True)
@@ -243,11 +268,16 @@ def main(
                         tmp_path.unlink(missing_ok=True)
                 else:
                     docstring_generator_ext.parse_file(
-                        file.absolute().as_posix(), docstring_style, overwrite_style
+                        file.absolute().as_posix(),
+                        docstring_style,
+                        overwrite_style,
+                        _ignore_magic,
+                        _ignore_private,
+                        _ignore_uncommented,
                     )
             except SyntaxError as e:
                 print(f"Error processing file {file}: {e}")
-            except Exception as e:
+            except Exception as e:  # noqa
                 print(f"Error processing file {file}: {e}")
 
 

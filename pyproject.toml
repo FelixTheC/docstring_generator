@@ -22,7 +22,7 @@ classifiers=[
 
 dependencies = [
     "click == 8.4.2",
-    "docstring-generator-ext==2.0.14",
+    "docstring-generator-ext==2.1.0",
 ]
 
 [dependency-groups]

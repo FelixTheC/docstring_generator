@@ -46,6 +46,7 @@ nav:
   - Installation: installation.md
   - CLI Options: options.md
   - Configuration: configuration.md
+  - Skip Directives: skip-directives.md
   - Features: features.md
   - Pre-commit: pre-commit.md
   - IDE Integration: ide-integration.md
