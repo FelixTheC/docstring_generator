@@ -30,5 +30,5 @@ tornado>=6.1
 tqdm>=4.70.1
 ujson>=5.4.0
 urllib3>=1.26.5
-wcwidth>=0.8.2
+wcwidth>=0.9.1
 pymdown-extensions>=10.0
